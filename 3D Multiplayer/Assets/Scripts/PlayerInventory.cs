@@ -8,14 +8,34 @@ public class PlayerInventory : NetworkBehaviour
     [SerializeField] List<Item> items = new List<Item>();
     [SerializeField] LayerMask itemLayerMask;
     [SerializeField] float detectionRange;
-    [SerializeField] Item detectedItem;
     [SerializeField] Camera cam;
-    [SerializeField] Transform itemTransform;
-    [SerializeField] Item equippedItem;
+    [SerializeField] Transform itemTransform; // local hold point
     [SerializeField] PlayerInput playerInput;
+
+    Item detectedItem;
+    Item equippedItem;
+
+    // Synced state: which item index is currently equipped (-1 = none)
+    NetworkVariable<int> equippedIndex = new NetworkVariable<int>(-1);
+
+    public override void OnNetworkSpawn()
+    {
+        equippedIndex.OnValueChanged += OnEquippedIndexChanged;
+        // Apply initial state for late joiners
+        if (equippedIndex.Value >= 0)
+        {
+            ApplyEquip(equippedIndex.Value);
+        }
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        equippedIndex.OnValueChanged -= OnEquippedIndexChanged;
+    }
 
     void Update()
     {
+        if (!IsOwner) { return; } 
         DetectItem();
     }
 
@@ -27,36 +47,72 @@ public class PlayerInventory : NetworkBehaviour
             if (item != null && item.IsUnclaimed())
             {
                 detectedItem = item;
-                Debug.Log("Detected item");
+                return;
             }
         }
-        else
-        {
-            Debug.Log("No item detected");
-        }
+        detectedItem = null;
     }
 
     public void OnInteract(InputValue value)
     {
-        detectedItem.PickUpItem(gameObject);
-        items.Add(detectedItem);
-        detectedItem.transform.SetParent(itemTransform);
+        if (!IsOwner || detectedItem == null) { return; }
 
-        for (int i = 0; i < items.Count; i++)
-        {
-            if (items[i] == detectedItem)
-            {
-                EquipItem(i);
-                break;
-            }
-        }
+        // Wrap the item's NetworkObject in a reference the RPC can serialize
+        NetworkObjectReference itemRef = detectedItem.NetworkObject;
+        PickUpItemServerRpc(itemRef);
 
         detectedItem = null;
-
-        Debug.Log("Picked up item");
     }
 
-    void EquipItem(int index)
+    [Rpc(SendTo.Server)]
+    void PickUpItemServerRpc(NetworkObjectReference itemRef)
+    {
+        // Resolve the reference back into the actual NetworkObject on the server
+        if (!itemRef.TryGet(out NetworkObject itemNetObj))
+        {
+            return; // item no longer exists / already despawned
+        }
+
+        Item item = itemNetObj.GetComponent<Item>();
+        if (item == null || !item.IsUnclaimed())
+        {
+            return; // not a valid, claimable item
+        }
+
+        // --- Server-authoritative validation and state update goes here ---
+        // e.g. distance check, mark claimed, add to this player's inventory,
+        // then set equippedIndex.Value to trigger the synced visual equip.
+    }
+
+    public void OnSwitchItem(InputValue value)
+    {
+        if (!IsOwner) { return; }
+
+        InputControl control = playerInput.actions["SwitchItem"].activeControl;
+        if (control != null && int.TryParse(control.name, out int keyNumber))
+        {
+            int index = keyNumber - 1;
+            SwitchItemServerRpc(index);
+        }
+    }
+
+    [Rpc(SendTo.Server)]
+    void SwitchItemServerRpc(int index)
+    {
+        if (index >= 0 && index < items.Count)
+        {
+            equippedIndex.Value = index; // server-authoritative, auto-syncs
+        }
+    }
+
+    // Fires on ALL clients when the server changes equippedIndex
+    void OnEquippedIndexChanged(int previous, int current)
+    {
+        ApplyEquip(current);
+    }
+
+    // Purely visual - runs on every client, uses normal SetParent
+    void ApplyEquip(int index)
     {
         if (equippedItem != null)
         {
@@ -64,23 +120,14 @@ public class PlayerInventory : NetworkBehaviour
             equippedItem.gameObject.SetActive(false);
         }
 
+        if (index < 0 || index >= items.Count) { return; }
+
         equippedItem = items[index];
         equippedItem.SetEquipped(true);
         equippedItem.gameObject.SetActive(true);
+
+        equippedItem.transform.SetParent(itemTransform);   
         equippedItem.transform.localPosition = Vector3.zero;
-    }
-
-    public void OnSwitchItem(InputValue value)
-    {
-        InputControl control = playerInput.actions["SwitchItem"].activeControl;
-
-        if (control != null && int.TryParse(control.name, out int keyNumber))
-        {
-            int index = keyNumber - 1;
-            if (index >= 0 && index < items.Count)
-            {
-                EquipItem(index);
-            }
-        }
+        equippedItem.transform.localRotation = Quaternion.identity;
     }
 }

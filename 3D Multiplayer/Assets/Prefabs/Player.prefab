@@ -103,7 +103,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3124374088
+  GlobalObjectIdHash: 613867139
   InScenePlacedSourceGlobalObjectIdHash: 613867139
   DeferredDespawnTick: 0
   Ownership: 1
@@ -154,10 +154,8 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 64
   detectionRange: 2.5
-  detectedItem: {fileID: 0}
   cam: {fileID: 6483407682183602331}
-  itemTransform: {fileID: 0}
-  equippedItem: {fileID: 0}
+  itemTransform: {fileID: 2824063798723241618}
   playerInput: {fileID: 1046686182426769148}
 --- !u!114 &1046686182426769148
 MonoBehaviour:

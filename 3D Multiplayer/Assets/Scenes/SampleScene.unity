@@ -133,7 +133,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2268589960140164403, guid: 94b6b34300751df429b5db8ba5b2646d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0.55
+      value: 2.02
       objectReference: {fileID: 0}
     - target: {fileID: 2268589960140164403, guid: 94b6b34300751df429b5db8ba5b2646d, type: 3}
       propertyPath: m_LocalPosition.y
@@ -141,7 +141,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2268589960140164403, guid: 94b6b34300751df429b5db8ba5b2646d, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -2.57
+      value: -1.95
       objectReference: {fileID: 0}
     - target: {fileID: 2268589960140164403, guid: 94b6b34300751df429b5db8ba5b2646d, type: 3}
       propertyPath: m_LocalRotation.w
@@ -170,6 +170,14 @@ PrefabInstance:
     - target: {fileID: 2268589960140164403, guid: 94b6b34300751df429b5db8ba5b2646d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2525373034241967387, guid: 94b6b34300751df429b5db8ba5b2646d, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 2372008677
+      objectReference: {fileID: 0}
+    - target: {fileID: 2525373034241967387, guid: 94b6b34300751df429b5db8ba5b2646d, type: 3}
+      propertyPath: InScenePlacedSourceGlobalObjectIdHash
+      value: 3907783845
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -516,6 +524,14 @@ PrefabInstance:
     - target: {fileID: 2268589960140164403, guid: 94b6b34300751df429b5db8ba5b2646d, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2525373034241967387, guid: 94b6b34300751df429b5db8ba5b2646d, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 2403605304
+      objectReference: {fileID: 0}
+    - target: {fileID: 2525373034241967387, guid: 94b6b34300751df429b5db8ba5b2646d, type: 3}
+      propertyPath: InScenePlacedSourceGlobalObjectIdHash
+      value: 3907783845
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

@@ -23,8 +23,7 @@ public class PlayerMovement : NetworkBehaviour
 
     Rigidbody myRigidbody;
     CapsuleCollider myBodyCollider;
-
-
+    
     public override void OnNetworkSpawn()
     {
         //Position.OnValueChanged += OnStateChanged;
