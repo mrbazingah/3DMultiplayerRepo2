@@ -1,85 +1,123 @@
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : NetworkBehaviour
 {
-    public static PlayerMovement instance { get; private set; }
-
-    #region Variables
     [SerializeField] float moveSpeed;
     [SerializeField] float lookSpeed;
     [SerializeField] float lookXLimit;
+    [SerializeField] Camera playerCam;
+    [SerializeField] AudioListener playerAudioListener;
+    [SerializeField] PlayerInput playerInput;
+
+    //public NetworkVariable<Vector3> Position = new NetworkVariable<Vector3>();
 
     float rotationX; // Pitch (vertical)
     float rotationY; // Yaw (horizontal)
-    
-    Camera cam;
 
     Vector3 moveDirection;
     Vector2 movementInput;
 
+    Camera cam;
+
     Rigidbody myRigidbody;
     CapsuleCollider myBodyCollider;
-    #endregion
 
-    void Awake()
-    {
-        if (instance == null)
-        {
-            instance = this;
-        }
-        else
-        {
-            Destroy(this);
-        }
-    }
 
-    void Start()
+    public override void OnNetworkSpawn()
     {
+        //Position.OnValueChanged += OnStateChanged;
+
         myRigidbody = GetComponent<Rigidbody>();
         myBodyCollider = GetComponent<CapsuleCollider>();
+
+        if (!IsOwner)
+        {
+            myRigidbody.isKinematic = true;
+
+            playerCam.gameObject.SetActive(false);
+
+            if (playerAudioListener != null)
+            {
+                playerAudioListener.enabled = false;
+            }
+
+            if (playerInput != null)
+            {
+                playerInput.enabled = false;
+            }
+
+            enabled = false;
+            return;
+        }
+
+        myRigidbody.isKinematic = false;
+
+        cam = playerCam;
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        // Get the main camera.
-        cam = Camera.main;
-
-        // Initialize yaw based on current rotation.
         rotationY = transform.rotation.eulerAngles.y;
     }
+
+    /*
+    public void OnStateChanged(Vector3 previous, Vector3 current)
+    {
+        if (!IsOwner)
+        {
+            myRigidbody.MovePosition(Position.Value);
+        }
+    }
+    
+    [Rpc(SendTo.Server)]
+    void SubmitPositionRequestServerRpc(Vector3 clientPosition, RpcParams rpcParams = default)
+    {
+        Position.Value = clientPosition;
+    }
+    */
 
     void Update()
     {
         transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles.x, rotationY, transform.rotation.eulerAngles.z);
 
         Movement();
+
+        /*
+        if (IsOwner)
+        {
+            SubmitPositionRequestServerRpc(transform.position);
+        }
+        */
     }
 
-    #region Movement
     public void OnMove(InputValue value)
     {
+        if (!IsOwner) { return; }
+
         movementInput = value.Get<Vector2>();
     }
 
     void Movement()
     {
-        // Since transform.rotation has already been updated,
-        // transform.forward/right reflect the correct updated yaw.
         Vector3 forward = transform.forward;
         Vector3 right = transform.right;
 
         moveDirection = (forward * movementInput.y) + (right * movementInput.x);
-        myRigidbody.linearVelocity = new Vector3(moveDirection.x, myRigidbody.linearVelocity.y, moveDirection.z) * moveSpeed;
+
+        Vector3 targetVelocity = moveDirection * moveSpeed;
+        myRigidbody.linearVelocity = new Vector3(targetVelocity.x, myRigidbody.linearVelocity.y, targetVelocity.z);
     }
 
     public void OnLook(InputValue value)
     {
+        if (!IsOwner) { return; }
+
         Vector2 lookInput = value.Get<Vector2>();
         rotationX -= lookInput.y * lookSpeed;
         rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
         cam.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
         rotationY += (lookInput.x * lookSpeed);
     }
-    #endregion
 }
