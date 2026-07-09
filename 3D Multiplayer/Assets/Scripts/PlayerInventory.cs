@@ -1,6 +1,6 @@
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
-using System.Collections.Generic;
 using UnityEngine.InputSystem;
 
 public class PlayerInventory : NetworkBehaviour
@@ -12,6 +12,7 @@ public class PlayerInventory : NetworkBehaviour
     [SerializeField] Camera cam;
     [SerializeField] Transform itemTransform; 
     [SerializeField] PlayerInput playerInput;
+    [SerializeField] GameObject itemPrefab;
 
     Item detectedItem;
     Item equippedItem;
@@ -60,31 +61,24 @@ public class PlayerInventory : NetworkBehaviour
     {
         if (!IsOwner || detectedItem == null) { return; }
 
-        // Wrap the item's NetworkObject in a reference the RPC can serialize
-        NetworkObjectReference itemRef = detectedItem.NetworkObject;
-        PickUpItemServerRpc(itemRef);
-
-        detectedItem = null;
+        PickUpItemServerRpc(detectedItem.NetworkObject);
     }
 
     [Rpc(SendTo.Server)]
     void PickUpItemServerRpc(NetworkObjectReference itemRef)
     {
-        // Resolve the reference back into the actual NetworkObject on the server
-        if (!itemRef.TryGet(out NetworkObject itemNetObj))
-        {
-            return; // item no longer exists / already despawned
-        }
+        if (!itemRef.TryGet(out NetworkObject itemNetObj)) { return; }
 
         Item item = itemNetObj.GetComponent<Item>();
-        if (item == null)
-        {
-            return; // not a valid, claimable item
-        }
+        if (item == null) { return; }
 
-        // --- Server-authoritative validation and state update goes here ---
-        // e.g. distance check, mark claimed, add to this player's inventory,
-        // then set equippedIndex.Value to trigger the synced visual equip.
+        GameObject newItem = Instantiate(itemPrefab, itemTransform.position, Quaternion.identity);
+        newItem.GetComponent<NetworkObject>().Spawn(true);
+        newItem.SetActive(false);
+
+        items.Add(newItem.GetComponent<Item>());
+
+        itemNetObj.Despawn(true);
     }
 
     public void OnSwitchItem(InputValue value)
@@ -95,16 +89,7 @@ public class PlayerInventory : NetworkBehaviour
         if (control != null && int.TryParse(control.name, out int keyNumber))
         {
             int index = keyNumber - 1;
-            SwitchItemServerRpc(index);
-        }
-    }
-
-    [Rpc(SendTo.Server)]
-    void SwitchItemServerRpc(int index)
-    {
-        if (index >= 0 && index < items.Count)
-        {
-            equippedIndex.Value = index; // server-authoritative, auto-syncs
+            
         }
     }
 
@@ -117,6 +102,7 @@ public class PlayerInventory : NetworkBehaviour
     // Local visual only
     void ApplyEquip(int index)
     {
-        
+        items[index].transform.SetParent(itemTransform);
+        items[index].gameObject.SetActive(true);
     }
 }

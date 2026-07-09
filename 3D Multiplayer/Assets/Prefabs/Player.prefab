@@ -130,7 +130,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   ShowTopMostFoldoutHeaderGroup: 1
-  moveSpeed: 7
+  moveSpeed: 6
   lookSpeed: 0.5
   lookXLimit: 90
   playerCam: {fileID: 6483407682183602331}
@@ -150,6 +150,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerInventory
   ShowTopMostFoldoutHeaderGroup: 1
   items: []
+  maxItemCount: 5
   itemLayerMask:
     serializedVersion: 2
     m_Bits: 64
@@ -157,6 +158,7 @@ MonoBehaviour:
   cam: {fileID: 6483407682183602331}
   itemTransform: {fileID: 2824063798723241618}
   playerInput: {fileID: 1046686182426769148}
+  itemPrefab: {fileID: 1421501113695215512, guid: 16807be47dc116a46aa4893bbfc2b63e, type: 3}
 --- !u!114 &1046686182426769148
 MonoBehaviour:
   m_ObjectHideFlags: 0
