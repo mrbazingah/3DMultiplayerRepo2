@@ -128,9 +128,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Item
   ShowTopMostFoldoutHeaderGroup: 1
-  itemName: Item1
-  value: 1
-  owner: {fileID: 0}
+  <itemName>k__BackingField: Money
+  <value>k__BackingField: 3
+  <itemId>k__BackingField: 1
 --- !u!114 &2525373034241967387
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -143,8 +143,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2092124659
-  InScenePlacedSourceGlobalObjectIdHash: 0
+  GlobalObjectIdHash: 2372008677
+  InScenePlacedSourceGlobalObjectIdHash: 3907783845
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0

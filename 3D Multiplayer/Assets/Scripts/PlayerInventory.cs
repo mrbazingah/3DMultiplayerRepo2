@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
@@ -5,7 +6,7 @@ using UnityEngine.InputSystem;
 
 public class PlayerInventory : NetworkBehaviour
 {
-    [SerializeField] List<Item> items;
+    [SerializeField] List<InventoryItem> items;
     [SerializeField] int maxItemCount;
     [SerializeField] LayerMask itemLayerMask;
     [SerializeField] float detectionRange;
@@ -15,19 +16,25 @@ public class PlayerInventory : NetworkBehaviour
     [SerializeField] GameObject itemPrefab;
 
     Item detectedItem;
-    Item equippedItem;
+    InventoryItem equippedItem;
 
     // Synced state: which item index is currently equipped (-1 = none)
     NetworkVariable<int> equippedIndex = new NetworkVariable<int>(-1);
 
     public override void OnNetworkSpawn()
     {
-        items = new List<Item>(maxItemCount);
+        if (!IsOwner) { return; }
+
+        items = new List<InventoryItem>(maxItemCount);
 
         equippedIndex.OnValueChanged += OnEquippedIndexChanged;
         if (equippedIndex.Value >= 0)
         {
-            ApplyEquip(equippedIndex.Value);
+            ApplyEquip(equippedIndex.Value, -1);
+        }
+        else if (items.Count == 1)
+        {
+            equippedIndex.Value = 0;
         }
     }
 
@@ -73,12 +80,24 @@ public class PlayerInventory : NetworkBehaviour
         if (item == null) { return; }
 
         GameObject newItem = Instantiate(itemPrefab, itemTransform.position, Quaternion.identity);
-        newItem.GetComponent<NetworkObject>().Spawn(true);
-        newItem.SetActive(false);
 
-        items.Add(newItem.GetComponent<Item>());
+        InventoryItem newItemScript = newItem.GetComponent<InventoryItem>();
+        newItemScript.itemName = item.itemName;
+        newItemScript.itemValue = item.itemValue;
+        newItemScript.itemId = item.itemId;
+
+        items.Add(newItemScript);
 
         itemNetObj.Despawn(true);
+
+        for (int i = 0; i < items.Count; i++)
+        {
+            if (items[i] == newItemScript)
+            {
+                equippedIndex.Value = i;
+                break;
+            }
+        }
     }
 
     public void OnSwitchItem(InputValue value)
@@ -89,20 +108,28 @@ public class PlayerInventory : NetworkBehaviour
         if (control != null && int.TryParse(control.name, out int keyNumber))
         {
             int index = keyNumber - 1;
-            
+            equippedIndex.Value = index;
         }
     }
 
     // Fires on ALL clients when the server changes equippedIndex
     void OnEquippedIndexChanged(int previous, int current)
     {
-        ApplyEquip(current);
+        if (!IsOwner) { return; }
+
+        ApplyEquip(current, previous);
+        Debug.Log("EquippedIndex changed from " + previous + " to " + current);
     }
 
     // Local visual only
-    void ApplyEquip(int index)
+    void ApplyEquip(int currentIndex, int previousIndex)
     {
-        items[index].transform.SetParent(itemTransform);
-        items[index].gameObject.SetActive(true);
+        items[currentIndex].transform.SetParent(itemTransform);
+        items[currentIndex].gameObject.SetActive(true);
+
+        if (previousIndex >= 0)
+        {
+            items[previousIndex].gameObject.SetActive(false);
+        }
     }
 }
