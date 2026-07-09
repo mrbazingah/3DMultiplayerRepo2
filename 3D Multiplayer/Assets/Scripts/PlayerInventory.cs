@@ -5,11 +5,12 @@ using UnityEngine.InputSystem;
 
 public class PlayerInventory : NetworkBehaviour
 {
-    [SerializeField] List<Item> items = new List<Item>();
+    [SerializeField] List<Item> items;
+    [SerializeField] int maxItemCount;
     [SerializeField] LayerMask itemLayerMask;
     [SerializeField] float detectionRange;
     [SerializeField] Camera cam;
-    [SerializeField] Transform itemTransform; // local hold point
+    [SerializeField] Transform itemTransform; 
     [SerializeField] PlayerInput playerInput;
 
     Item detectedItem;
@@ -20,8 +21,9 @@ public class PlayerInventory : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        items = new List<Item>(maxItemCount);
+
         equippedIndex.OnValueChanged += OnEquippedIndexChanged;
-        // Apply initial state for late joiners
         if (equippedIndex.Value >= 0)
         {
             ApplyEquip(equippedIndex.Value);
@@ -44,12 +46,13 @@ public class PlayerInventory : NetworkBehaviour
         if (Physics.Raycast(cam.transform.position, cam.transform.forward, out RaycastHit hit, detectionRange, itemLayerMask))
         {
             Item item = hit.collider.GetComponent<Item>();
-            if (item != null && item.IsUnclaimed())
+            if (item != null)
             {
                 detectedItem = item;
                 return;
             }
         }
+
         detectedItem = null;
     }
 
@@ -74,7 +77,7 @@ public class PlayerInventory : NetworkBehaviour
         }
 
         Item item = itemNetObj.GetComponent<Item>();
-        if (item == null || !item.IsUnclaimed())
+        if (item == null)
         {
             return; // not a valid, claimable item
         }
@@ -111,23 +114,9 @@ public class PlayerInventory : NetworkBehaviour
         ApplyEquip(current);
     }
 
-    // Purely visual - runs on every client, uses normal SetParent
+    // Local visual only
     void ApplyEquip(int index)
     {
-        if (equippedItem != null)
-        {
-            equippedItem.SetEquipped(false);
-            equippedItem.gameObject.SetActive(false);
-        }
-
-        if (index < 0 || index >= items.Count) { return; }
-
-        equippedItem = items[index];
-        equippedItem.SetEquipped(true);
-        equippedItem.gameObject.SetActive(true);
-
-        equippedItem.transform.SetParent(itemTransform);   
-        equippedItem.transform.localPosition = Vector3.zero;
-        equippedItem.transform.localRotation = Quaternion.identity;
+        
     }
 }
