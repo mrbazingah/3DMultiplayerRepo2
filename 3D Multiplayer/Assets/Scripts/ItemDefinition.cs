@@ -5,6 +5,5 @@ public class ItemDefinition : ScriptableObject
 {
     public int itemId;
     public string itemName;
-    public int itemValue;
     public GameObject modelPrefab;
 }
