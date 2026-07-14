@@ -11,10 +11,8 @@ public class PlayerMovement : NetworkBehaviour
     [SerializeField] AudioListener playerAudioListener;
     [SerializeField] PlayerInput playerInput;
 
-    //public NetworkVariable<Vector3> Position = new NetworkVariable<Vector3>();
-
-    float rotationX; // Pitch (vertical)
-    float rotationY; // Yaw (horizontal)
+    float rotationX; 
+    float rotationY; 
 
     Vector3 moveDirection;
     Vector2 movementInput;
@@ -22,14 +20,12 @@ public class PlayerMovement : NetworkBehaviour
     Camera cam;
 
     Rigidbody myRigidbody;
-    CapsuleCollider myBodyCollider;
+    Animator myAnimator;
     
     public override void OnNetworkSpawn()
     {
-        //Position.OnValueChanged += OnStateChanged;
-
         myRigidbody = GetComponent<Rigidbody>();
-        myBodyCollider = GetComponent<CapsuleCollider>();
+        myAnimator = GetComponentInChildren<Animator>();
 
         if (!IsOwner)
         {
@@ -59,36 +55,25 @@ public class PlayerMovement : NetworkBehaviour
         Cursor.visible = false;
 
         rotationY = transform.rotation.eulerAngles.y;
+
+        SetLayerRecursively(gameObject, LayerMask.NameToLayer("Self Visuals"));
     }
 
-    /*
-    public void OnStateChanged(Vector3 previous, Vector3 current)
+    void SetLayerRecursively(GameObject obj, int layer)
     {
-        if (!IsOwner)
+        obj.layer = layer;
+
+        foreach (Transform child in obj.transform)
         {
-            myRigidbody.MovePosition(Position.Value);
+            SetLayerRecursively(child.gameObject, layer);
         }
     }
-    
-    [Rpc(SendTo.Server)]
-    void SubmitPositionRequestServerRpc(Vector3 clientPosition, RpcParams rpcParams = default)
-    {
-        Position.Value = clientPosition;
-    }
-    */
 
     void Update()
     {
         transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles.x, rotationY, transform.rotation.eulerAngles.z);
 
         Movement();
-
-        /*
-        if (IsOwner)
-        {
-            SubmitPositionRequestServerRpc(transform.position);
-        }
-        */
     }
 
     public void OnMove(InputValue value)
@@ -104,6 +89,8 @@ public class PlayerMovement : NetworkBehaviour
         Vector3 right = transform.right;
 
         moveDirection = (forward * movementInput.y) + (right * movementInput.x);
+
+        myAnimator.SetBool("isWalking", moveDirection.magnitude > 0);
 
         Vector3 targetVelocity = moveDirection * moveSpeed;
         myRigidbody.linearVelocity = new Vector3(targetVelocity.x, myRigidbody.linearVelocity.y, targetVelocity.z);
