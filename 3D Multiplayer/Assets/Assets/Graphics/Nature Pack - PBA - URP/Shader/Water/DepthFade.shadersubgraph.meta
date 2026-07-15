@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: b831ebb858c7d884da9c53c153a91367
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 60072b568d64c40a485e0fc55012dc9f, type: 3}
+AssetOrigin:
+  serializedVersion: 1
+  productId: 243603
+  packageName: Low Poly Nature Pack - PVA
+  packageVersion: 1.1
+  assetPath: Assets/Nature Pack - PBA - URP/Shader/Water/DepthFade.shadersubgraph
+  uploadId: 830314

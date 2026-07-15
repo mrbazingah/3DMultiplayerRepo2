@@ -1,0 +1,33 @@
+Greetings, we are Public Void Assets
+
+	Here is what you need to know:
+
+	The Fire particles should have no issue working on all pipelines
+
+//	<<<<<IMPORTANT>>>>>	  //
+	1. The water shader only works in URP right now after you go to your URP Asset/Scriptable Render Pipeline Asset and check the two boxes:
+	-Depth Texture
+	-Opaque Texture
+	If you cannot find it, go to project settings, graphics and click on the Scriptable Render Pipeline Asset box and it should lead you to it. If it is empty then you need to create one.
+	You can easily edit it by clicking the water material and playing with the values in the inspector
+
+
+//	<<<<<IMPORTANT>>>>>	  //
+	2. If you are using this project on the Built-In Render Pipiline you need to:
+	-go to the Materials folder and click the: Material For All
+	-on the top right of the inspector, set the shader to Standard
+	-the prefabs might still look pink because Unity hasn't refreshed them yet(you can reload unity or refresh it), if you take them out to the scene, they will be as they should be
+
+	3. If you are using this project on HDRP you need to:
+	-go to the Materials folder and click the: Material For All
+	-on the top right of the inspector, set the shader to HDRP/Lit
+	-while on the material, take the albedo texture from the folder and drag it to the Base Map under Surface inputs
+	-the prefabs might still look pink because Unity hasn't refreshed them yet(you can reload unity or refresh it), if you take them out to the scene, they will be as they should be
+
+
+
+	Hope you have a wonderful time using this asset. :)
+
+	Join our discord for any questions you have or support that you would need.
+
+	https://discord.gg/Ub37Gss77f

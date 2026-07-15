@@ -1,0 +1,74 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f0a5020d11ae6546b84d154c8e2282c, type: 3}
+  m_Name: TerrainSettings
+  m_EditorClassIdentifier: Assembly-CSharp::TerrainSettings
+  chunkSize: 64
+  resolution: 64
+  heightScale: 25
+  noiseScale: 0.008
+  octaves: 2
+  lacunarity: 1.84
+  persistence: 0.5
+  natureLayers:
+  - name: Rocks
+    prefabs:
+    - {fileID: 776801114301271748, guid: 55ac616cd55b0af4887fd485cd169515, type: 3}
+    - {fileID: 2079149309105623778, guid: 2ac4d1d71c154e445bc5223b2865a12e, type: 3}
+    - {fileID: 2178304581821955875, guid: fef2629376180ea4ea5bb976a4e92387, type: 3}
+    - {fileID: 7631222083771247163, guid: 09968a30f8bdb674d8e4ab3a8214dd0a, type: 3}
+    - {fileID: 2120014381566446378, guid: 93af4029ae40c8f4f823456ec30ed028, type: 3}
+    - {fileID: 7321133600040309530, guid: 3fc0673b36319a746a5eb5c7f04048e1, type: 3}
+    - {fileID: 4597814981196394265, guid: 8b8399060e12ae14d991ab34b135866b, type: 3}
+    - {fileID: 79006218848884596, guid: 258bbe2c571bb1948b9673732e6400b5, type: 3}
+    - {fileID: 1774356876889602405, guid: 71d4b79bbf8c8a14d8db89d8e0291958, type: 3}
+    countPerChunk: 50
+    minHeight: 0
+    maxHeight: 100
+    maxSlopeDegrees: 20.2
+    uniformScaleRange: {x: 0.1, y: 0.1}
+    randomYRotation: 1
+    alignToGroundNormal: 1
+  - name: Trees
+    prefabs:
+    - {fileID: 2574884471293724006, guid: 2a8a8d3844b9c3b4d90d0480de481ab1, type: 3}
+    - {fileID: 4928388142723259633, guid: c6804f589ecac0142ab3b0b79159a7dd, type: 3}
+    - {fileID: 8892607365909429864, guid: 5776ccbdd7bd2454f83e1573abf54c9f, type: 3}
+    - {fileID: 1332942320726963864, guid: 4d59d23056164864bb1908af1a0301d0, type: 3}
+    - {fileID: 3278917917575341083, guid: 2e8e2529a48521a4c9bd17e7278aa24b, type: 3}
+    - {fileID: 3557679148984543510, guid: e7a9ddbc04e5f4f4790d73f354b01e28, type: 3}
+    - {fileID: 4811008433335011636, guid: 362d7cb9d735018489cc21cc89c8d0c0, type: 3}
+    - {fileID: 4226421856626144392, guid: 5d0ee55de43900b42914baf3a55381b2, type: 3}
+    - {fileID: 2039722241693453675, guid: 39f5a813401464b498781794e8312bdc, type: 3}
+    - {fileID: 5046791460172339864, guid: ac0c1e7ec6fa8f2489a90fe2689acf14, type: 3}
+    - {fileID: 2553451908651806079, guid: 9ada000fb384b4345bfb196e77d57983, type: 3}
+    - {fileID: 6457876428102014856, guid: 2b9328bd3d018f6458b8e101b8831207, type: 3}
+    - {fileID: 7707654685643526530, guid: a1656564dcff4444b871b1b2dfab5da8, type: 3}
+    - {fileID: 633444781792902141, guid: 6e567407390321a4aa9f08099783901b, type: 3}
+    countPerChunk: 320
+    minHeight: 0
+    maxHeight: 100
+    maxSlopeDegrees: 13.5
+    uniformScaleRange: {x: 0.25, y: 0.25}
+    randomYRotation: 1
+    alignToGroundNormal: 1
+  - name: Grass
+    prefabs:
+    - {fileID: 8432501050396065901, guid: 36c2709f5d7ef8749b8bc82e55163814, type: 3}
+    - {fileID: 7027193333210885993, guid: 4c2f5943246006e4399e4b7f2248e74f, type: 3}
+    countPerChunk: 10000
+    minHeight: 0
+    maxHeight: 100
+    maxSlopeDegrees: 25
+    uniformScaleRange: {x: 0.25, y: 0.25}
+    randomYRotation: 1
+    alignToGroundNormal: 1

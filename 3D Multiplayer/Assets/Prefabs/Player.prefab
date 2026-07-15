@@ -137,6 +137,7 @@ MonoBehaviour:
   playerCam: {fileID: 6483407682183602331}
   playerAudioListener: {fileID: 4454419660333144030}
   playerInput: {fileID: 1046686182426769148}
+  spawnPoint: {x: 0, y: 200, z: 0}
 --- !u!114 &5723651952435692937
 MonoBehaviour:
   m_ObjectHideFlags: 0

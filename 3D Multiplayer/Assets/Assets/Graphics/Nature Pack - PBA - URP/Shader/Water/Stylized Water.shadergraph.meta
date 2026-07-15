@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: d6de5c1f25e6a1b408ee43ef2c9b11c1
+ScriptedImporter:
+  internalIDToNameTable: []
+  externalObjects: {}
+  serializedVersion: 2
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+  script: {fileID: 11500000, guid: 625f186215c104763be7675aa2d941aa, type: 3}
+AssetOrigin:
+  serializedVersion: 1
+  productId: 243603
+  packageName: Low Poly Nature Pack - PVA
+  packageVersion: 1.1
+  assetPath: Assets/Nature Pack - PBA - URP/Shader/Water/Stylized Water.shadergraph
+  uploadId: 830314
