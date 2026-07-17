@@ -10,7 +10,6 @@ public class PlayerMovement : NetworkBehaviour
     [SerializeField] Camera playerCam;
     [SerializeField] AudioListener playerAudioListener;
     [SerializeField] PlayerInput playerInput;
-    [SerializeField] Vector3 spawnPoint;
 
     float rotationX; 
     float rotationY; 
@@ -23,12 +22,14 @@ public class PlayerMovement : NetworkBehaviour
     Rigidbody myRigidbody;
     Animator myAnimator;
     ChunkManager chunkManager;
+    GameManager gameManager;
     
     public override void OnNetworkSpawn()
     {
         myRigidbody = GetComponent<Rigidbody>();
         myAnimator = GetComponentInChildren<Animator>();
         chunkManager = FindFirstObjectByType<ChunkManager>();
+        gameManager = FindFirstObjectByType<GameManager>();
 
         if (!IsOwner)
         {
@@ -62,8 +63,7 @@ public class PlayerMovement : NetworkBehaviour
         SetLayerRecursively(gameObject, LayerMask.NameToLayer("Self Visuals"));
 
         chunkManager.AssignPlayer(transform);
-
-        transform.position = spawnPoint;
+        gameManager.AssignPlayer(transform);
     }
 
     void SetLayerRecursively(GameObject obj, int layer)

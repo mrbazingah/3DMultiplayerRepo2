@@ -57,13 +57,20 @@ public static class StructureSites
 
         StructureType type = s.structureTypes[typeIndex];
         if (type.prefab == null) return false;
+
+        Debug.Log($"Site rolled at region ({regionX},{regionZ})");
+
         if (roll > type.chancePerRegion) return false;
+
+        Debug.Log($"Site rolled at region ({regionX},{regionZ})");
 
         // Keep the structure away from the region border so its clearance
         // radius cannot reach past the 3x3 neighbourhood other chunks search.
         float margin = Mathf.Max(type.clearanceRadius, type.flattenRadius + type.flattenFalloff);
         float usable = s.regionSize - margin * 2f;
         if (usable <= 0f) return false; // regionSize too small for this structure
+
+        Debug.Log($"Site rolled at region ({regionX},{regionZ})");
 
         float wx = regionX * s.regionSize + margin + u * usable;
         float wz = regionZ * s.regionSize + margin + v * usable;
@@ -84,6 +91,9 @@ public static class StructureSites
             flattenFalloff = type.flattenFalloff,
             yRotation = type.randomYRotation ? yRot : 0f,
         };
+        
+        Debug.Log($"Site rolled at region ({regionX},{regionZ}) -> world {wx:F0},{wz:F0} ground={ground:F1}");
+
         return true;
     }
 

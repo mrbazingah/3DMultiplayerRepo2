@@ -19,6 +19,17 @@ MonoBehaviour:
   octaves: 2
   lacunarity: 1.84
   persistence: 0.5
+  regionSize: 128
+  structureTypes:
+  - name: Camp
+    prefab: {fileID: 2008773310105764278, guid: ac302584bd609d543b4989d24b63a9f3, type: 3}
+    chancePerRegion: 1
+    clearanceRadius: 100
+    flattenRadius: 100
+    flattenFalloff: 50
+    minHeight: 0
+    maxHeight: 100
+    randomYRotation: 1
   natureLayers:
   - name: Rocks
     prefabs:
@@ -35,6 +46,7 @@ MonoBehaviour:
     minHeight: 0
     maxHeight: 100
     maxSlopeDegrees: 20.2
+    structureClearancePadding: 0
     uniformScaleRange: {x: 0.1, y: 0.1}
     randomYRotation: 1
     alignToGroundNormal: 1
@@ -58,17 +70,7 @@ MonoBehaviour:
     minHeight: 0
     maxHeight: 100
     maxSlopeDegrees: 13.5
-    uniformScaleRange: {x: 0.25, y: 0.25}
-    randomYRotation: 1
-    alignToGroundNormal: 1
-  - name: Grass
-    prefabs:
-    - {fileID: 8432501050396065901, guid: 36c2709f5d7ef8749b8bc82e55163814, type: 3}
-    - {fileID: 7027193333210885993, guid: 4c2f5943246006e4399e4b7f2248e74f, type: 3}
-    countPerChunk: 10000
-    minHeight: 0
-    maxHeight: 100
-    maxSlopeDegrees: 25
+    structureClearancePadding: 0
     uniformScaleRange: {x: 0.25, y: 0.25}
     randomYRotation: 1
     alignToGroundNormal: 1
