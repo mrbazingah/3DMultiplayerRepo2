@@ -8,7 +8,7 @@ public class GameManager : NetworkBehaviour
 
     void Start()
     {
-        NetworkManager.Singleton.StartHost();
+        //NetworkManager.Singleton.StartHost();
     }
 
     public override void OnNetworkSpawn()
