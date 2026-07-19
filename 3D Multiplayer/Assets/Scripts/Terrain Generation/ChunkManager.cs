@@ -3,24 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using UnityEngine;
 
-/// <summary>
-/// Infinite chunk streaming around a target (the player).
-///
-/// Efficiency techniques used:
-/// 1. All heavy work (heights, normals, structure rolls, nature placement)
-///    runs on background threads via Task.Run. The main thread only uploads
-///    mesh data and instantiates prefabs.
-/// 2. Tiered loading: chunks near the player get colliders, chunks a bit
-///    further get nature and structures, distant chunks are mesh only. A
-///    collider six chunks away is pure waste.
-/// 3. MeshCollider baking runs off-thread with Physics.BakeMesh, so assigning
-///    the collider afterwards is nearly free (no frame hitch).
-/// 4. Chunk GameObjects and Mesh instances are pooled and reused; steady-state
-///    play allocates almost nothing.
-/// 5. Per-frame budgets: only a few chunks are applied and a limited number of
-///    prefabs instantiated each frame, keeping frame times stable.
-/// 6. Triangles/UVs are shared across all chunks (identical topology).
-/// </summary>
 public class ChunkManager : MonoBehaviour
 {
     [Header("References")]
@@ -63,7 +45,6 @@ public class ChunkManager : MonoBehaviour
 
     private ChunkCoord lastPlayerChunk = new ChunkCoord(int.MinValue, int.MinValue);
 
-    /// <summary>Runtime state for one loaded chunk.</summary>
     private class Chunk
     {
         public ChunkCoord coord;
@@ -71,10 +52,9 @@ public class ChunkManager : MonoBehaviour
         public MeshFilter filter;
         public MeshCollider collider;
         public Transform detailRoot;
-        public Mesh mesh; // reused across the chunk's lifetimes (pooled)
+        public Mesh mesh;
 
-        // Kept so details can be spawned later, when the chunk enters the
-        // detail tier, without regenerating anything.
+        // Retained so details can spawn later when the chunk enters the detail tier.
         public List<NatureSpawn> natureData;
         public List<StructureSpawn> structureData;
 
@@ -82,10 +62,6 @@ public class ChunkManager : MonoBehaviour
         public bool hasDetails;
     }
 
-    /// <summary>
-    /// Set this before the manager starts if the seed comes from elsewhere
-    /// (for example a networked seed). Everything downstream is deterministic.
-    /// </summary>
     public void SetSeed(int seed)
     {
         worldSeed = seed;
@@ -103,12 +79,11 @@ public class ChunkManager : MonoBehaviour
         this.player = player;
     }
 
-    private void Update()   
+    private void Update()
     {
         if (player == null || settings == null) return;
 
-        // 1. Only re-evaluate which chunks are needed when the player crosses
-        //    into a different chunk. Cheap early-out on most frames.
+        // Only recompute needed chunks when the player crosses into a new chunk.
         ChunkCoord playerChunk = ChunkCoord.FromWorld(player.position, settings.chunkSize);
         if (!playerChunk.Equals(lastPlayerChunk))
         {
@@ -117,20 +92,13 @@ public class ChunkManager : MonoBehaviour
             UpdateTiers(playerChunk);
         }
 
-        // 2. Apply a few finished chunks per frame (budgeted).
         ApplyCompletedChunks(playerChunk);
 
-        // 3. Assign colliders whose off-thread bake has finished.
         FinishColliderBakes();
 
-        // 4. Instantiate a slice of the queued prefabs (budgeted).
         SpawnQueuedStructures();
         SpawnQueuedNature();
     }
-
-    // ------------------------------------------------------------------
-    // Deciding what should exist
-    // ------------------------------------------------------------------
 
     private void RefreshNeededChunks(ChunkCoord center)
     {
@@ -139,7 +107,6 @@ public class ChunkManager : MonoBehaviour
             for (int x = -viewDistance; x <= viewDistance; x++)
                 needed.Add(new ChunkCoord(center.x + x, center.z + z));
 
-        // Unload chunks that fell out of range.
         var toUnload = new List<ChunkCoord>();
         foreach (var kv in loaded)
             if (!needed.Contains(kv.Key))
@@ -147,13 +114,12 @@ public class ChunkManager : MonoBehaviour
         foreach (var coord in toUnload)
             Unload(coord);
 
-        // Queue generation for missing chunks, nearest first, so the ground
-        // under the player always arrives before distant scenery.
         var missing = new List<ChunkCoord>();
         foreach (var coord in needed)
             if (!loaded.ContainsKey(coord) && !pending.Contains(coord))
                 missing.Add(coord);
 
+        // Nearest first, so the ground under the player arrives before distant scenery.
         missing.Sort((a, b) =>
         {
             int da = (a.x - center.x) * (a.x - center.x) + (a.z - center.z) * (a.z - center.z);
@@ -164,7 +130,8 @@ public class ChunkManager : MonoBehaviour
         foreach (var coord in missing)
         {
             pending.Add(coord);
-            ChunkCoord c = coord; // capture a copy for the closure
+            // capture a copy for the closure
+            ChunkCoord c = coord;
             Task.Run(() =>
             {
                 ChunkData data = ChunkBuilder.Build(noise, settings, worldSeed, c);
@@ -173,15 +140,7 @@ public class ChunkManager : MonoBehaviour
         }
     }
 
-    // ------------------------------------------------------------------
-    // Tiered loading
-    // ------------------------------------------------------------------
-
-    /// <summary>
-    /// Re-evaluates every loaded chunk against the tier radii. Without this the
-    /// tiers would be frozen at generation time and a chunk generated far away
-    /// would never gain a collider as you walked toward it.
-    /// </summary>
+    // Re-evaluate tiers every frame, or a chunk generated far away would never gain a collider as you approach.
     private void UpdateTiers(ChunkCoord center)
     {
         foreach (var kv in loaded)
@@ -192,13 +151,11 @@ public class ChunkManager : MonoBehaviour
     {
         int dist = ChebyshevDistance(chunk.coord, center);
 
-        // --- Collision tier ---
         if (dist <= collisionDistance && !chunk.hasCollider)
         {
             chunk.hasCollider = true;
 
-            // Bake collision data on a worker thread. Assigning sharedMesh
-            // afterwards reuses the baked data, avoiding a main-thread hitch.
+            // Bake off-thread; assigning sharedMesh afterwards reuses it with no main-thread hitch.
             int meshId = chunk.mesh.GetInstanceID();
             Task bake = Task.Run(() => Physics.BakeMesh(meshId, false));
             bakingColliders.Add((bake, chunk));
@@ -209,7 +166,6 @@ public class ChunkManager : MonoBehaviour
             chunk.collider.sharedMesh = null;
         }
 
-        // --- Detail tier (nature + structures) ---
         if (dist <= detailDistance && !chunk.hasDetails)
         {
             chunk.hasDetails = true;
@@ -234,10 +190,6 @@ public class ChunkManager : MonoBehaviour
         for (int i = chunk.detailRoot.childCount - 1; i >= 0; i--)
             Destroy(chunk.detailRoot.GetChild(i).gameObject);
     }
-
-    // ------------------------------------------------------------------
-    // Turning finished data into scene objects
-    // ------------------------------------------------------------------
 
     private void ApplyCompletedChunks(ChunkCoord center)
     {
@@ -273,7 +225,6 @@ public class ChunkManager : MonoBehaviour
             chunk.go.SetActive(true);
             loaded.Add(data.coord, chunk);
 
-            // Give it a collider and details only if it is close enough.
             UpdateTiersFor(chunk, center);
 
             budget--;
@@ -289,8 +240,7 @@ public class ChunkManager : MonoBehaviour
 
             bakingColliders.RemoveAt(i);
 
-            // The chunk may have been unloaded, or left the collision tier,
-            // while the bake was running.
+            // The chunk may have been unloaded or left the collision tier while baking.
             if (chunk.hasCollider && chunk.go.activeSelf
                 && loaded.TryGetValue(chunk.coord, out Chunk current) && current == chunk)
             {
@@ -333,10 +283,7 @@ public class ChunkManager : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Skip queued spawns whose chunk was unloaded, recycled, or dropped out of
-    /// the detail tier before their turn came up.
-    /// </summary>
+    // Skip spawns whose chunk was unloaded, recycled, or left the detail tier.
     private bool IsChunkStillDetailed(Chunk chunk)
     {
         return chunk.hasDetails
@@ -344,16 +291,11 @@ public class ChunkManager : MonoBehaviour
             && current == chunk;
     }
 
-    // ------------------------------------------------------------------
-    // Pooling and unloading
-    // ------------------------------------------------------------------
-
     private void Unload(ChunkCoord coord)
     {
         if (!loaded.TryGetValue(coord, out Chunk chunk)) return;
         loaded.Remove(coord);
 
-        // Destroy detail objects; the terrain GameObject and Mesh are reused.
         ClearDetails(chunk);
 
         chunk.hasDetails = false;
@@ -362,6 +304,7 @@ public class ChunkManager : MonoBehaviour
         chunk.natureData = null;
         chunk.structureData = null;
         chunk.go.SetActive(false);
+        // GameObject and Mesh are pooled and reused; only the detail objects were destroyed.
         pool.Push(chunk);
     }
 

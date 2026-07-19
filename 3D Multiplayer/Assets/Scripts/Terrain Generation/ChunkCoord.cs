@@ -1,10 +1,6 @@
 using System;
 using UnityEngine;
 
-/// <summary>
-/// Integer grid coordinate of a chunk. Used as dictionary key,
-/// so it implements fast equality and hashing.
-/// </summary>
 [Serializable]
 public readonly struct ChunkCoord : IEquatable<ChunkCoord>
 {

@@ -1,14 +1,6 @@
 using UnityEngine;
 
-/// <summary>
-/// Seeded 2D Perlin noise with fractal (fBm) sampling.
-///
-/// Why not Mathf.PerlinNoise?
-/// 1. It cannot be seeded, so different worlds would need coordinate offsets (hacky).
-/// 2. This class is pure C# and thread-safe after construction, which lets
-///    chunk generation run on background threads without touching Unity APIs.
-/// 3. Fully deterministic: same seed + same coordinates = same value, always.
-/// </summary>
+// Seeded, thread-safe Perlin - Unity's Mathf.PerlinNoise can't be seeded.
 public sealed class DeterministicNoise
 {
     private readonly int[] perm = new int[512];
@@ -18,7 +10,6 @@ public sealed class DeterministicNoise
         var p = new int[256];
         for (int i = 0; i < 256; i++) p[i] = i;
 
-        // Fisher-Yates shuffle of the permutation table, driven by the seed.
         var rng = new System.Random(seed);
         for (int i = 255; i > 0; i--)
         {
@@ -47,7 +38,7 @@ public sealed class DeterministicNoise
         }
     }
 
-    /// <summary>Single octave. Returns roughly [-1, 1].</summary>
+    // Returns roughly [-1, 1].
     public float Sample(float x, float y)
     {
         int xi = Mathf.FloorToInt(x);
@@ -70,7 +61,7 @@ public sealed class DeterministicNoise
         return Lerp(x1, x2, v);
     }
 
-    /// <summary>Fractal noise (multiple octaves). Returns [0, 1].</summary>
+    // Returns [0, 1] - note the wider range than Sample.
     public float Fbm(float x, float y, int octaves, float lacunarity, float persistence)
     {
         float sum = 0f;

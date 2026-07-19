@@ -1,10 +1,6 @@
 using System;
 using UnityEngine;
 
-/// <summary>
-/// All tuning for terrain generation, structures and nature placement.
-/// Create via: Assets > Create > Terrain > Terrain Settings.
-/// </summary>
 [CreateAssetMenu(menuName = "Terrain/Terrain Settings")]
 public class TerrainSettings : ScriptableObject
 {
@@ -36,9 +32,6 @@ public class TerrainSettings : ScriptableObject
     public NatureLayer[] natureLayers;
 }
 
-/// <summary>
-/// One kind of pre-made structure (village, ruin, camp...).
-/// </summary>
 [Serializable]
 public class StructureType
 {
@@ -69,10 +62,6 @@ public class StructureType
     public bool randomYRotation = true;
 }
 
-/// <summary>
-/// One category of scatter objects (trees, rocks, grass...)
-/// with its own prefabs and placement rules.
-/// </summary>
 [Serializable]
 public class NatureLayer
 {
