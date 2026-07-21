@@ -21,14 +21,12 @@ public class PlayerMovement : NetworkBehaviour
 
     Rigidbody myRigidbody;
     Animator myAnimator;
-    ChunkManager chunkManager;
     GameManager gameManager;
     
     public override void OnNetworkSpawn()
     {
         myRigidbody = GetComponent<Rigidbody>();
         myAnimator = GetComponentInChildren<Animator>();
-        chunkManager = FindFirstObjectByType<ChunkManager>();
         gameManager = FindFirstObjectByType<GameManager>();
 
         if (!IsOwner)
@@ -62,7 +60,6 @@ public class PlayerMovement : NetworkBehaviour
 
         SetLayerRecursively(gameObject, LayerMask.NameToLayer("Self Visuals"));
 
-        chunkManager.AssignPlayer(transform);
         gameManager.AssignPlayer(transform);
     }
 

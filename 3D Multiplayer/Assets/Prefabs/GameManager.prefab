@@ -73,4 +73,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   ShowTopMostFoldoutHeaderGroup: 1
   player: {fileID: 0}
-  spawnPoint: {x: 0, y: 20, z: 0}
+  spawnPoint: {x: 0, y: 0, z: 0}
