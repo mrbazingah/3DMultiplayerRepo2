@@ -13,13 +13,20 @@ public class PlayerModelManager : NetworkBehaviour
 
     NetworkVariable<Prop.PropType> currentProp = new NetworkVariable<Prop.PropType>();
 
+    NetworkVariable<bool> lockRotation = new NetworkVariable<bool>();
+    NetworkVariable<Quaternion> savedRotation = new NetworkVariable<Quaternion>();
+
     PropRegistry propRegistry;
+    PlayerMovement playerMovement;
     CapsuleCollider playerCollider;
+    Rigidbody myRigidbody;
 
     public override void OnNetworkSpawn()
     {
         propRegistry = FindFirstObjectByType<PropRegistry>();
+        playerMovement = FindFirstObjectByType<PlayerMovement>();
         playerCollider = GetComponent<CapsuleCollider>();
+        myRigidbody = GetComponent<Rigidbody>();
 
         currentProp.OnValueChanged += OnCurrentPropChanged;
 
@@ -61,8 +68,6 @@ public class PlayerModelManager : NetworkBehaviour
     void SwapModelServerRpc(Prop.PropType propType)
     {
         currentProp.Value = propType;
-
-        Debug.Log("Server Rpc triggered");
     }
 
     void OnCurrentPropChanged(Prop.PropType oldValue, Prop.PropType newValue)
@@ -125,7 +130,7 @@ public class PlayerModelManager : NetworkBehaviour
 
         float distance = otherLowPoint - propLowPoint;
 
-        transform.position += new Vector3(0, distance, 0);
+        myRigidbody.position += new Vector3(0, distance, 0);
     }
 
     public void OnDiscard(InputValue value)
@@ -135,6 +140,34 @@ public class PlayerModelManager : NetworkBehaviour
         currentProp.Value = Prop.PropType.None;
 
         Debug.Log("Discarded prop");
+    }
+
+    public void OnLock(InputValue value)
+    {
+        if (!IsOwner) { return; }
+
+        lockRotation.Value = !lockRotation.Value;
+
+        savedRotation.Value = currentPropModel != null ? currentPropModel.transform.rotation : defaultVisuals.transform.rotation;
+    }
+
+    void LateUpdate()
+    {
+        LockRotation();
+    }
+
+    void LockRotation()
+    {
+        savedRotation.Value = lockRotation.Value ? savedRotation.Value : playerMovement.GetPlayerRotation();
+
+        if (currentPropModel != null)
+        {
+            currentPropModel.transform.rotation = savedRotation.Value;
+        }
+        else
+        {
+            defaultVisuals.transform.rotation = savedRotation.Value;
+        }
     }
 
     public override void OnNetworkDespawn()

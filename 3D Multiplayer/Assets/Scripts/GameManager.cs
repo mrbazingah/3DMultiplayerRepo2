@@ -35,6 +35,8 @@ public class GameManager : NetworkBehaviour
     [Rpc(SendTo.Server)]
     void SetPlayerSpawnServerRpc(Vector3 pos)
     {
+        if (player == null) { return; }
+
         Rigidbody playerRb = player.GetComponent<Rigidbody>();
         if (playerRb != null)
         {

@@ -81,7 +81,7 @@ CapsuleCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3338395985008094567}
-  m_Material: {fileID: 13400000, guid: a78173e4295bdf947a9fdbffdef20875, type: 2}
+  m_Material: {fileID: 13400000, guid: a05d3c9e4a8c6374e9e9eec11351d51b, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -105,7 +105,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3338395985008094567}
   serializedVersion: 5
-  m_Mass: 1
+  m_Mass: 1.2
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -123,7 +123,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 1
   m_Constraints: 112
-  m_CollisionDetection: 1
+  m_CollisionDetection: 2
 --- !u!114 &7977614076748021220
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -136,7 +136,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 3124374088
+  GlobalObjectIdHash: 613867139
   InScenePlacedSourceGlobalObjectIdHash: 613867139
   DeferredDespawnTick: 0
   Ownership: 1
@@ -163,14 +163,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   ShowTopMostFoldoutHeaderGroup: 1
-  moveSpeed: 3
+  walkSpeed: 4
+  runSpeed: 7
+  jumpForce: 4
   lookSpeed: 0.5
   lookXLimit: 90
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 512
+  rayDistance: 0.2
   playerCam: {fileID: 5984510200694350359}
   playerAudioListener: {fileID: 6499311155699352634}
   camPivot: {fileID: 4325585484412161707}
   playerInput: {fileID: 1046686182426769148}
   playerTeam: 2
+  isRunning: 0
 --- !u!114 &3093765351669244058
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -377,7 +384,7 @@ AudioListener:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3871668869778309697}
-  m_Enabled: 1
+  m_Enabled: 0
 --- !u!114 &776574258730895511
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -605,6 +612,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1235092185367796929, guid: 044a6c749f52fff4fa7f6eee255d74f6, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1549704670063745121, guid: 044a6c749f52fff4fa7f6eee255d74f6, type: 3}
+      propertyPath: m_Enabled
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1902838328966055547, guid: 044a6c749f52fff4fa7f6eee255d74f6, type: 3}
