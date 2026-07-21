@@ -9,5 +9,6 @@ public class Prop : NetworkBehaviour
     {
         None,
         Lantern,
+        Campfire,
     }
 }

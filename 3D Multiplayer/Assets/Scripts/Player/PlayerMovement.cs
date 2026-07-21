@@ -9,7 +9,9 @@ public class PlayerMovement : NetworkBehaviour
     [SerializeField] float lookXLimit;
     [SerializeField] Camera playerCam;
     [SerializeField] AudioListener playerAudioListener;
+    [SerializeField] Transform camPivot;
     [SerializeField] PlayerInput playerInput;
+    [SerializeField] GameManager.Team playerTeam;
 
     float rotationX; 
     float rotationY; 
@@ -58,20 +60,10 @@ public class PlayerMovement : NetworkBehaviour
 
         rotationY = transform.rotation.eulerAngles.y;
 
-        SetLayerRecursively(gameObject, LayerMask.NameToLayer("Self Visuals"));
-
         gameManager.AssignPlayer(transform);
     }
 
-    void SetLayerRecursively(GameObject obj, int layer)
-    {
-        obj.layer = layer;
-
-        foreach (Transform child in obj.transform)
-        {
-            SetLayerRecursively(child.gameObject, layer);
-        }
-    }
+    
 
     void Update()
     {
@@ -107,7 +99,7 @@ public class PlayerMovement : NetworkBehaviour
         Vector2 lookInput = value.Get<Vector2>();
         rotationX -= lookInput.y * lookSpeed;
         rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
-        cam.transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
+        camPivot.localRotation = Quaternion.Euler(rotationX, 0, 0);
         rotationY += (lookInput.x * lookSpeed);
     }
 }

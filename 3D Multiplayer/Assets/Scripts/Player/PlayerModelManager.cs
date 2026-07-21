@@ -14,12 +14,16 @@ public class PlayerModelManager : NetworkBehaviour
     NetworkVariable<Prop.PropType> currentProp = new NetworkVariable<Prop.PropType>();
 
     PropRegistry propRegistry;
+    CapsuleCollider playerCollider;
 
     public override void OnNetworkSpawn()
     {
         propRegistry = FindFirstObjectByType<PropRegistry>();
+        playerCollider = GetComponent<CapsuleCollider>();
 
         currentProp.OnValueChanged += OnCurrentPropChanged;
+
+        SetLayerRecursively(defaultVisuals, LayerMask.NameToLayer("Player Visuals"));
     }
 
     void Update()
@@ -71,17 +75,66 @@ public class PlayerModelManager : NetworkBehaviour
     {
         Debug.Log("Applied prop model");
 
-        defaultVisuals.SetActive(false);
-        GameObject propPrefab = propRegistry.GetPrefab(currentProp.Value);
-        GameObject spawnedProp = Instantiate(propPrefab, transform);
-        
+        GameObject spawnedProp = null;
+
+        if (currentProp.Value != Prop.PropType.None)
+        {
+            GameObject propPrefab = propRegistry.GetPrefab(currentProp.Value);
+            spawnedProp = Instantiate(propPrefab, transform);
+
+            defaultVisuals.SetActive(false);
+            playerCollider.enabled = false;
+        }
+        else
+        {
+            defaultVisuals.SetActive(true);
+            playerCollider.enabled = true;
+        }
+
+        Collider spawnedCollider = spawnedProp != null ? spawnedProp.GetComponent<Collider>() : playerCollider;
+        Collider previousCollider = currentPropModel != null ? currentPropModel.GetComponent<Collider>() : playerCollider;
+        AlignPropToGround(spawnedCollider, previousCollider);
+
         if (currentPropModel != null)
         {
             currentPropModel.SetActive(false);
             Destroy(currentPropModel);
         }
 
-        currentPropModel = spawnedProp;
+        if (spawnedProp != null)
+        {
+            currentPropModel = spawnedProp;
+            SetLayerRecursively(currentPropModel, LayerMask.NameToLayer("Player Prop"));
+        }
+    }
+
+    void SetLayerRecursively(GameObject obj, int layer)
+    {
+        obj.layer = layer;
+
+        foreach (Transform child in obj.transform)
+        {
+            SetLayerRecursively(child.gameObject, layer);
+        }
+    }
+
+    void AlignPropToGround(Collider propCollider1, Collider propCollider2)
+    {
+        float propLowPoint = propCollider1.bounds.min.y;
+        float otherLowPoint = propCollider2.bounds.min.y;
+
+        float distance = otherLowPoint - propLowPoint;
+
+        transform.position += new Vector3(0, distance, 0);
+    }
+
+    public void OnDiscard(InputValue value)
+    {
+        if (!IsOwner) { return; }
+
+        currentProp.Value = Prop.PropType.None;
+
+        Debug.Log("Discarded prop");
     }
 
     public override void OnNetworkDespawn()

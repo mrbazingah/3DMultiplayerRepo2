@@ -47,4 +47,11 @@ public class GameManager : NetworkBehaviour
             player.position = pos;
         }
     }
+
+    public enum Team
+    {
+        None,
+        Hunters,
+        Props,
+    }
 }
