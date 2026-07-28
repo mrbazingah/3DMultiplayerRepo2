@@ -61,7 +61,5 @@ public class PlayerShooting : NetworkBehaviour
         {
             Debug.Log("Hit target");
         }
-
-        ammoCount--;
     }
 }
