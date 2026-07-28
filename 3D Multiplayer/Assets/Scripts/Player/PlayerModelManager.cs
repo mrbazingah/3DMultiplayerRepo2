@@ -10,6 +10,7 @@ public class PlayerModelManager : NetworkBehaviour
     [SerializeField] Camera cam;
     [SerializeField] Prop detectedProp;
     [SerializeField] GameObject currentPropModel;
+    [SerializeField] bool canSwap;
 
     NetworkVariable<Prop.PropType> currentProp = new NetworkVariable<Prop.PropType>();
 
@@ -31,11 +32,13 @@ public class PlayerModelManager : NetworkBehaviour
         currentProp.OnValueChanged += OnCurrentPropChanged;
 
         SetLayerRecursively(defaultVisuals, LayerMask.NameToLayer("Player Visuals"));
+
+        canSwap = playerMovement.GetPlayerTeam().Value == GameManager.Team.Props;
     }
 
     void Update()
     {
-        if (!IsOwner) { return; }
+        if (!IsOwner || canSwap) { return; }
         DetectItem();
     }
 
@@ -57,7 +60,7 @@ public class PlayerModelManager : NetworkBehaviour
 
     public void OnInteract(InputValue value)
     {
-        if (!IsOwner || detectedProp == null) { return; }
+        if (!IsOwner || detectedProp == null || canSwap) { return; }
 
         SwapModelServerRpc(detectedProp.propType);
 
@@ -98,6 +101,7 @@ public class PlayerModelManager : NetworkBehaviour
 
         Collider spawnedCollider = spawnedProp != null ? spawnedProp.GetComponent<Collider>() : playerCollider;
         Collider previousCollider = currentPropModel != null ? currentPropModel.GetComponent<Collider>() : playerCollider;
+
         AlignPropToGround(spawnedCollider, previousCollider);
 
         if (currentPropModel != null)
@@ -110,6 +114,9 @@ public class PlayerModelManager : NetworkBehaviour
         {
             currentPropModel = spawnedProp;
             SetLayerRecursively(currentPropModel, LayerMask.NameToLayer("Player Prop"));
+
+            Collider newCol = GetCurrentPropModelCollider();
+            playerMovement.SetPlayerCollider(newCol);
         }
     }
 
@@ -135,7 +142,7 @@ public class PlayerModelManager : NetworkBehaviour
 
     public void OnDiscard(InputValue value)
     {
-        if (!IsOwner) { return; }
+        if (!IsOwner || canSwap) { return; }
 
         currentProp.Value = Prop.PropType.None;
 
@@ -144,7 +151,7 @@ public class PlayerModelManager : NetworkBehaviour
 
     public void OnLock(InputValue value)
     {
-        if (!IsOwner) { return; }
+        if (!IsOwner || canSwap) { return; }
 
         lockRotation.Value = !lockRotation.Value;
 
@@ -173,5 +180,11 @@ public class PlayerModelManager : NetworkBehaviour
     public override void OnNetworkDespawn()
     {
         currentProp.OnValueChanged -= OnCurrentPropChanged;
+    }
+
+    public Collider GetCurrentPropModelCollider()
+    {
+        Collider cpmCol = currentPropModel != null ? currentPropModel.GetComponent<Collider>() : playerMovement.GetComponent<Collider>();
+        return cpmCol;
     }
 }

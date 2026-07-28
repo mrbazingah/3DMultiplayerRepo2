@@ -20,7 +20,7 @@ public class PlayerMovement : NetworkBehaviour
     [SerializeField] AudioListener playerAudioListener;
     [Space]
     [SerializeField] PlayerInput playerInput;
-    [SerializeField] GameManager.Team playerTeam;
+    [SerializeField] NetworkVariable<GameManager.Team> playerTeam;
 
     bool isRunning;
 
@@ -31,6 +31,8 @@ public class PlayerMovement : NetworkBehaviour
     Vector3 moveDirection;
     Vector2 movementInput;
     Vector2 lookInput;
+
+    Camera currentCam;
 
     Rigidbody myRigidbody;
     Animator myAnimator;
@@ -68,7 +70,7 @@ public class PlayerMovement : NetworkBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        if (playerTeam == GameManager.Team.Hunters)
+        if (playerTeam.Value == GameManager.Team.Hunters)
         {
             firstPersonCam.enabled = true;
             thridPersonCam.enabled = false;
@@ -80,6 +82,8 @@ public class PlayerMovement : NetworkBehaviour
             firstPersonCam.enabled = false;
             thridPersonCam.enabled = true;
         }
+
+        currentCam = camPivot.GetComponent<Camera>();
 
         rotationY = transform.rotation.eulerAngles.y;
         currentSpeed = walkSpeed;
@@ -132,7 +136,17 @@ public class PlayerMovement : NetworkBehaviour
 
     bool IsGrounded()
     {
-        return Physics.Raycast(transform.position, Vector3.down, rayDistance, groundLayer);
+        if (playerCollider == null) return false;
+
+        Vector3 colOrigin = playerCollider.bounds.center;
+        colOrigin.y = playerCollider.bounds.min.y + 0.1f; // Make sure ray sits above ground
+
+        return Physics.Raycast(colOrigin, Vector3.down, rayDistance, groundLayer);
+    }
+
+    public void SetPlayerCollider(Collider newCol)
+    {
+        playerCollider = newCol;
     }
 
     public void OnLook(InputValue value)
@@ -155,5 +169,15 @@ public class PlayerMovement : NetworkBehaviour
     public Quaternion GetPlayerRotation()
     {
         return transform.rotation;
+    }
+
+    public Camera GetCurrentCam()
+    {
+        return currentCam;
+    }
+
+    public NetworkVariable<GameManager.Team> GetPlayerTeam()
+    {
+        return playerTeam;
     }
 }

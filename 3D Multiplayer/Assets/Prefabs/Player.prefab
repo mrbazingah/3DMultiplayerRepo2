@@ -260,7 +260,7 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 512
-  rayDistance: 2
+  rayDistance: 0.2
   lookSpeed: 0.5
   lookXLimit: 90
   firstPersonCam: {fileID: 6483407682183602331}
@@ -268,7 +268,7 @@ MonoBehaviour:
   camPivot: {fileID: 4325585484412161707}
   playerAudioListener: {fileID: 6499311155699352634}
   playerInput: {fileID: 1046686182426769148}
-  playerTeam: 2
+  playerTeam: 1
 --- !u!114 &3093765351669244058
 MonoBehaviour:
   m_ObjectHideFlags: 0
