@@ -4,20 +4,25 @@ using UnityEngine.InputSystem;
 
 public class PlayerMovement : NetworkBehaviour
 {
+    [Header("Walking")]
     [SerializeField] float walkSpeed;
     [SerializeField] float runSpeed;
+    [Header("Jumping")]
     [SerializeField] float jumpForce;
-    [SerializeField] float lookSpeed;
-    [SerializeField] float lookXLimit;
     [SerializeField] LayerMask groundLayer;
     [SerializeField] float rayDistance;
-    [SerializeField] Camera playerCam;
-    [SerializeField] AudioListener playerAudioListener;
+    [Header("Camera")]
+    [SerializeField] float lookSpeed;
+    [SerializeField] float lookXLimit;
+    [SerializeField] Camera firstPersonCam;
+    [SerializeField] Camera thridPersonCam;
     [SerializeField] Transform camPivot;
+    [SerializeField] AudioListener playerAudioListener;
+    [Space]
     [SerializeField] PlayerInput playerInput;
     [SerializeField] GameManager.Team playerTeam;
 
-    [SerializeField] bool isRunning;
+    bool isRunning;
 
     float currentSpeed;
     float rotationX; 
@@ -25,8 +30,7 @@ public class PlayerMovement : NetworkBehaviour
 
     Vector3 moveDirection;
     Vector2 movementInput;
-
-    Camera cam;
+    Vector2 lookInput;
 
     Rigidbody myRigidbody;
     Animator myAnimator;
@@ -44,13 +48,12 @@ public class PlayerMovement : NetworkBehaviour
         {
             myRigidbody.isKinematic = true;
 
-            playerCam.gameObject.SetActive(false);
+            thridPersonCam.gameObject.SetActive(false);
 
             if (playerAudioListener != null)
             {
                 playerAudioListener.enabled = false;
             }
-
             if (playerInput != null)
             {
                 playerInput.enabled = false;
@@ -62,10 +65,21 @@ public class PlayerMovement : NetworkBehaviour
 
         myRigidbody.isKinematic = false;
 
-        cam = playerCam;
-
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        if (playerTeam == GameManager.Team.Hunters)
+        {
+            firstPersonCam.enabled = true;
+            thridPersonCam.enabled = false;
+
+            camPivot = firstPersonCam.transform;
+        }
+        else
+        {
+            firstPersonCam.enabled = false;
+            thridPersonCam.enabled = true;
+        }
 
         rotationY = transform.rotation.eulerAngles.y;
         currentSpeed = walkSpeed;
@@ -73,11 +87,11 @@ public class PlayerMovement : NetworkBehaviour
         gameManager.AssignPlayer(transform);
     }
 
-    void Update()
+    void FixedUpdate()
     {
-        transform.rotation = Quaternion.Euler(transform.rotation.eulerAngles.x, rotationY, transform.rotation.eulerAngles.z);
-
         Movement();
+
+        myRigidbody.MoveRotation(Quaternion.Euler(0, rotationY, 0));
     }
 
     public void OnMove(InputValue value)
@@ -87,7 +101,7 @@ public class PlayerMovement : NetworkBehaviour
         movementInput = value.Get<Vector2>();
     }
 
-    // Pass through
+    // Pass through input
     public void OnRun(InputValue value)
     {
         if (!IsOwner) { return; }
@@ -111,7 +125,6 @@ public class PlayerMovement : NetworkBehaviour
 
     public void OnJump(InputValue value)
     {
-        Debug.Log(IsGrounded());
         if (!IsOwner || !IsGrounded()) { return; }
 
         myRigidbody.AddForce(new Vector3(0, jumpForce, 0), ForceMode.Impulse);
@@ -119,18 +132,24 @@ public class PlayerMovement : NetworkBehaviour
 
     bool IsGrounded()
     {
-        return Physics.Raycast(playerCollider.bounds.center, Vector3.down, rayDistance, groundLayer);
+        return Physics.Raycast(transform.position, Vector3.down, rayDistance, groundLayer);
     }
 
     public void OnLook(InputValue value)
     {
         if (!IsOwner) { return; }
 
-        Vector2 lookInput = value.Get<Vector2>();
+        lookInput = value.Get<Vector2>();
+    }
+
+    void LateUpdate()
+    {
         rotationX -= lookInput.y * lookSpeed;
         rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
         camPivot.localRotation = Quaternion.Euler(rotationX, 0, 0);
         rotationY += (lookInput.x * lookSpeed);
+
+        lookInput = Vector2.zero;
     }
 
     public Quaternion GetPlayerRotation()
