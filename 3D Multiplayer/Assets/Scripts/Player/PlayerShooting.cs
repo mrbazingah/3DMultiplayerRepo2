@@ -28,34 +28,36 @@ public class PlayerShooting : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        playerMovement = FindFirstObjectByType<PlayerMovement>();
+        playerMovement = GetComponent<PlayerMovement>();
 
         canShoot = playerMovement.GetPlayerTeam().Value == GameManager.Team.Hunters;
+        cam = playerMovement.GetCurrentCam();
 
         ammoCount = maxAmmoCount;
     }
 
     public void OnShoot(InputValue value)
     {
-        if (!IsOwner || isShooting || isReloading || !canShoot) { return; }
+        if (!IsOwner || isShooting || isReloading || !canShoot || ammoCount <= 0) { return; }
 
         StartCoroutine(ShootingDelay());
     }
 
     IEnumerator ShootingDelay()
     {
-        // Shoots due to value being changed
         isShooting = true;
+        ShootServerRpc(cam.transform.position, cam.transform.forward);
 
         yield return new WaitForSeconds(shootDelay);
 
         isShooting = false;
     }
 
-    void Shoot()
+    [Rpc(SendTo.Server)]
+    void ShootServerRpc(Vector3 origin, Vector3 direction)
     {
         RaycastHit hit;
-        if (Physics.Raycast(cam.transform.position, cam.transform.forward, out hit, shootRange, targetLayer))
+        if (Physics.Raycast(origin, direction, out hit, shootRange, targetLayer))
         {
             Debug.Log("Hit target");
         }

@@ -25,7 +25,7 @@ public class PlayerModelManager : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         propRegistry = FindFirstObjectByType<PropRegistry>();
-        playerMovement = FindFirstObjectByType<PlayerMovement>();
+        playerMovement = GetComponent<PlayerMovement>();
         playerCollider = GetComponent<CapsuleCollider>();
         myRigidbody = GetComponent<Rigidbody>();
 
