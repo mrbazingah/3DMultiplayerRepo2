@@ -18,7 +18,7 @@ public class PlayerShooting : NetworkBehaviour
     [SerializeField] float reloadDelay;
     [SerializeField] TextMeshProUGUI ammoText;
 
-    bool isShooting;
+    NetworkVariable<bool> isShooting = new NetworkVariable<bool>();
     bool isReloading;
     bool canShoot;
 
@@ -26,22 +26,31 @@ public class PlayerShooting : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        
+        isShooting.OnValueChanged += OnIsShootingChanged;
+
+        ammoCount = maxAmmoCount;
     }
 
     public void OnShoot(InputValue value)
     {
-        if (!IsOwner || isShooting || isReloading || !canShoot) { return; }
+        if (!IsOwner || isShooting.Value || isReloading || !canShoot) { return; }
 
         StartCoroutine(ShootingDelay());
     }
 
     IEnumerator ShootingDelay()
     {
-        isShooting = true;
-        Shoot();
+        // Shoots due to value being changed
+        isShooting.Value = true;
 
         yield return new WaitForSeconds(shootDelay);
+
+        isShooting.Value = false;
+    }
+
+    void OnIsShootingChanged(bool oldValue, bool newValue)
+    {
+        Shoot();
     }
 
     void Shoot()
@@ -51,5 +60,7 @@ public class PlayerShooting : NetworkBehaviour
         {
             Debug.Log("Hit target");
         }
+
+        ammoCount--;
     }
 }
