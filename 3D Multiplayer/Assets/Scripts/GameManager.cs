@@ -76,9 +76,16 @@ public class GameManager : NetworkBehaviour
 
     int GetPlayerCount()
     {
-        foreach (var player in players)
+        int count = 0;
+
+        for (int i = 0; i < players.Length; i++)
         {
-            if (player )
+            if (players[i] != null)
+            {
+                count++;
+            }
         }
+
+        return count;
     }
 }
