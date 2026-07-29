@@ -19,14 +19,14 @@ public class PlayerModelManager : NetworkBehaviour
 
     PropRegistry propRegistry;
     PlayerMovement playerMovement;
-    CapsuleCollider playerCollider;
+    Collider playerCollider;
     Rigidbody myRigidbody;
 
     public override void OnNetworkSpawn()
     {
         propRegistry = FindFirstObjectByType<PropRegistry>();
         playerMovement = GetComponent<PlayerMovement>();
-        playerCollider = GetComponent<CapsuleCollider>();
+        playerCollider = GetComponent<Collider>();
         myRigidbody = GetComponent<Rigidbody>();
 
         currentProp.OnValueChanged += OnCurrentPropChanged;

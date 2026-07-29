@@ -13,10 +13,11 @@ public class PlayerShooting : NetworkBehaviour
     [SerializeField] LayerMask targetLayer;
 
     [Header("Reload")]
-    [SerializeField] int ammoCount;
-    [SerializeField] int maxAmmoCount;
+    [SerializeField] int maxAmmo;
     [SerializeField] float reloadDelay;
     [SerializeField] TextMeshProUGUI ammoText;
+
+    NetworkVariable<int> ammo = new NetworkVariable<int>();
 
     bool isShooting;
     bool isReloading;
@@ -33,12 +34,18 @@ public class PlayerShooting : NetworkBehaviour
         canShoot = playerMovement.GetPlayerTeam().Value == GameManager.Team.Hunters;
         cam = playerMovement.GetCurrentCam();
 
-        ammoCount = maxAmmoCount;
+        if (IsServer)
+        {
+            ammo.Value = maxAmmo;
+        }
+
+        ammo.OnValueChanged += OnAmmoChanged;
+        OnAmmoChanged(0, ammo.Value);
     }
 
     public void OnShoot(InputValue value)
     {
-        if (!IsOwner || isShooting || isReloading || !canShoot || ammoCount <= 0) { return; }
+        if (!IsOwner || isShooting || isReloading || !canShoot || ammo.Value <= 0) { return; }
 
         StartCoroutine(ShootingDelay());
     }
@@ -56,10 +63,22 @@ public class PlayerShooting : NetworkBehaviour
     [Rpc(SendTo.Server)]
     void ShootServerRpc(Vector3 origin, Vector3 direction)
     {
+        if (ammo.Value <= 0) { return; }
+
+        ammo.Value--;
+
         RaycastHit hit;
         if (Physics.Raycast(origin, direction, out hit, shootRange, targetLayer))
         {
             Debug.Log("Hit target");
+        }
+    }
+
+    void OnAmmoChanged(int oldValue, int newValue)
+    {
+        if (ammoText != null)
+        {
+            ammoText.text = newValue + " / " + maxAmmo;
         }
     }
 }

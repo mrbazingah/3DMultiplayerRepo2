@@ -268,7 +268,11 @@ MonoBehaviour:
   camPivot: {fileID: 4325585484412161707}
   playerAudioListener: {fileID: 6499311155699352634}
   playerInput: {fileID: 1046686182426769148}
-  playerTeam: 1
+  playerTeam:
+    UpdateTraits:
+      MinSecondsBetweenUpdates: 0
+      MaxSecondsBetweenUpdates: 0
+    m_InternalValue: 1
 --- !u!114 &3093765351669244058
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -290,6 +294,7 @@ MonoBehaviour:
   cam: {fileID: 5984510200694350359}
   detectedProp: {fileID: 0}
   currentPropModel: {fileID: 0}
+  canSwap: 0
 --- !u!114 &7832588847785007772
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -309,8 +314,7 @@ MonoBehaviour:
   targetLayer:
     serializedVersion: 2
     m_Bits: 1024
-  ammoCount: 0
-  maxAmmoCount: 18
+  maxAmmo: 30
   reloadDelay: 1
   ammoText: {fileID: 0}
 --- !u!114 &1046686182426769148
