@@ -4,25 +4,32 @@ using UnityEngine;
 public class PlayerHealth : NetworkBehaviour
 {
     [SerializeField] int maxHealth;
-    [SerializeField] int health;
+    
+    NetworkVariable<int> health = new NetworkVariable<int>();
 
     public override void OnNetworkSpawn()
     {
         if (IsServer)
         {
-            health = maxHealth;
+            health.Value = maxHealth;
         }
     }
 
     public void TakeDamage(int dmg)
     {
-        DamagePlayerServerRpc(health, dmg);
+        if (!IsServer) { return; }
+
+        health.Value -= dmg;
+
+        if (health.Value <= 0)
+        {
+            health.Value = 0;
+            Die();
+        }
     }
 
-    [Rpc(SendTo.Server)]
-    void DamagePlayerServerRpc(int currentHealth, int dmg)
+    void Die()
     {
-        currentHealth -= dmg;
-        health = currentHealth;
+        Debug.Log("Player died");
     }
 }

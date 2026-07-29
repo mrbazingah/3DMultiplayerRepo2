@@ -25,14 +25,13 @@ public class PlayerShooting : NetworkBehaviour
 
     Camera cam;
 
-    PlayerMovement playerMovement;
+    PlayerMovement myPlayerMovement;
 
     public override void OnNetworkSpawn()
     {
-        playerMovement = GetComponent<PlayerMovement>();
+        myPlayerMovement = GetComponent<PlayerMovement>();
 
-        canShoot = playerMovement.GetPlayerTeam().Value == GameManager.Team.Hunters;
-        cam = playerMovement.GetCurrentCam();
+        cam = myPlayerMovement.GetCurrentCam();
 
         if (IsServer)
         {
@@ -41,6 +40,11 @@ public class PlayerShooting : NetworkBehaviour
 
         ammo.OnValueChanged += OnAmmoChanged;
         OnAmmoChanged(0, ammo.Value);
+    }
+
+    public void SetCanShoot(GameManager.Team team)
+    {
+        canShoot = team == GameManager.Team.Hunters;
     }
 
     public void OnShoot(InputValue value)
@@ -63,7 +67,7 @@ public class PlayerShooting : NetworkBehaviour
     [Rpc(SendTo.Server)]
     void ShootServerRpc(Vector3 origin, Vector3 direction)
     {
-        if (ammo.Value <= 0) { return; }
+        if (ammo.Value <= 0 || isReloading) { return; }
 
         ammo.Value--;
 
@@ -71,14 +75,56 @@ public class PlayerShooting : NetworkBehaviour
         if (Physics.Raycast(origin, direction, out hit, shootRange, targetLayer))
         {
             Debug.Log("Hit target");
+
+            PlayerHealth targetHealth = hit.transform.GetComponentInParent<PlayerHealth>();
+            PlayerMovement targetMovement = hit.transform.GetComponentInParent<PlayerMovement>();
+
+            if (targetHealth != null && targetMovement != null)
+            {
+                if (targetMovement.GetPlayerTeam().Value == myPlayerMovement.GetPlayerTeam().Value) { return; }
+
+                targetHealth.TakeDamage(damage); 
+            }
         }
     }
 
     void OnAmmoChanged(int oldValue, int newValue)
     {
+        UpdateAmmoText(newValue.ToString());
+    }
+
+    void UpdateAmmoText(string newValue)
+    {
         if (ammoText != null)
         {
             ammoText.text = newValue + " / " + maxAmmo;
         }
+    }
+
+    public void OnReload(InputValue value)
+    {
+        if (!IsOwner || isReloading || isShooting || !canShoot || ammo.Value == maxAmmo) { return; }
+
+        StartCoroutine(ReloadingDelay());
+    }
+
+    IEnumerator ReloadingDelay()
+    {
+        isReloading = true;
+
+        UpdateAmmoText("...");
+
+        // Might want to change delay to server side
+        yield return new WaitForSeconds(reloadDelay);
+
+        ReloadServerRpc();
+
+        isReloading = false;
+    }
+
+    [Rpc(SendTo.Server)]
+    void ReloadServerRpc()
+    {
+        ammo.Value = maxAmmo;
     }
 }

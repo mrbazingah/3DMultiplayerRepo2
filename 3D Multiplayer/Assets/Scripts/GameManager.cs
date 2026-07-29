@@ -5,14 +5,20 @@ public class GameManager : NetworkBehaviour
 {
     [SerializeField] Transform player;
     [SerializeField] Vector3 spawnPoint;
+    [SerializeField] int maxPlayerCount;
 
-    void Start()
-    {
-        //NetworkManager.Singleton.StartHost();
-    }
+    NetworkObject[] players;
 
     public override void OnNetworkSpawn()
     {
+        if (IsServer)
+        {
+            NetworkManager.Singleton.OnClientConnectedCallback += OnPlayerConnect;
+            NetworkManager.Singleton.OnClientDisconnectCallback += OnPlayerDisconnect;
+
+            players = new NetworkObject[maxPlayerCount];
+        }
+
         if (player != null)
         {
             SetPlayerSpawnServerRpc(spawnPoint);
@@ -55,5 +61,24 @@ public class GameManager : NetworkBehaviour
         None,
         Hunters,
         Props,
+    }
+
+    public void OnPlayerConnect(ulong clientId)
+    {
+        NetworkClient client = NetworkManager.Singleton.ConnectedClients[clientId];
+        players[clientId] = client.PlayerObject;
+    }
+
+    private void OnPlayerDisconnect(ulong clientId)
+    {
+        players[clientId] = null;
+    }
+
+    int GetPlayerCount()
+    {
+        foreach (var player in players)
+        {
+            if (player )
+        }
     }
 }

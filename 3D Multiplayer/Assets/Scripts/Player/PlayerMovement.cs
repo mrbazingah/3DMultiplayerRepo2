@@ -7,10 +7,12 @@ public class PlayerMovement : NetworkBehaviour
     [Header("Walking")]
     [SerializeField] float walkSpeed;
     [SerializeField] float runSpeed;
+
     [Header("Jumping")]
     [SerializeField] float jumpForce;
     [SerializeField] LayerMask groundLayer;
     [SerializeField] float rayDistance;
+
     [Header("Camera")]
     [SerializeField] float lookSpeed;
     [SerializeField] float lookXLimit;
@@ -37,14 +39,17 @@ public class PlayerMovement : NetworkBehaviour
     Rigidbody myRigidbody;
     Animator myAnimator;
     GameManager gameManager;
-    Collider playerCollider;
+    PlayerModelManager myModelManager;
+    PlayerShooting myShooting;
+    Collider myCollider;
     
     public override void OnNetworkSpawn()
     {
         myRigidbody = GetComponent<Rigidbody>();
         myAnimator = GetComponentInChildren<Animator>();
         gameManager = FindFirstObjectByType<GameManager>();
-        playerCollider = GetComponent<Collider>();
+        myModelManager = GetComponent<PlayerModelManager>();
+        myCollider = GetComponent<Collider>();
 
         if (!IsOwner)
         {
@@ -89,6 +94,16 @@ public class PlayerMovement : NetworkBehaviour
         currentSpeed = walkSpeed;
 
         gameManager.AssignPlayer(transform);
+    }
+
+    public void SetPlayerTeam(GameManager.Team newTeam)
+    {
+        if (!IsServer) { return; }
+
+        playerTeam.Value = newTeam;
+
+        myModelManager.SetCanSwap(newTeam);
+        myShooting.SetCanShoot(newTeam);
     }
 
     void FixedUpdate()
@@ -136,17 +151,17 @@ public class PlayerMovement : NetworkBehaviour
 
     bool IsGrounded()
     {
-        if (playerCollider == null) return false;
+        if (myCollider == null) return false;
 
-        Vector3 colOrigin = playerCollider.bounds.center;
-        colOrigin.y = playerCollider.bounds.min.y + 0.1f; // Make sure ray sits above ground
+        Vector3 colOrigin = myCollider.bounds.center;
+        colOrigin.y = myCollider.bounds.min.y + 0.1f; // Make sure ray sits above ground
 
         return Physics.Raycast(colOrigin, Vector3.down, rayDistance, groundLayer);
     }
 
     public void SetPlayerCollider(Collider newCol)
     {
-        playerCollider = newCol;
+        myCollider = newCol;
     }
 
     public void OnLook(InputValue value)
