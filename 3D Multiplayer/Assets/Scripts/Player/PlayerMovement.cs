@@ -27,7 +27,7 @@ public class PlayerMovement : NetworkBehaviour
     bool isRunning;
 
     float currentSpeed;
-    float rotationX; 
+    float rotationX;
     float rotationY;
 
     Vector3 moveDirection;
@@ -39,17 +39,20 @@ public class PlayerMovement : NetworkBehaviour
     Rigidbody myRigidbody;
     Animator myAnimator;
     GameManager gameManager;
-    PlayerModelManager myModelManager;
-    PlayerShooting myShooting;
     Collider myCollider;
-    
+
     public override void OnNetworkSpawn()
     {
         myRigidbody = GetComponent<Rigidbody>();
         myAnimator = GetComponentInChildren<Animator>();
         gameManager = FindFirstObjectByType<GameManager>();
-        myModelManager = GetComponent<PlayerModelManager>();
         myCollider = GetComponent<Collider>();
+
+        // Runs on the server for every player object, owned or not
+        if (IsServer && gameManager != null)
+        {
+            gameManager.RegisterPlayer(this);
+        }
 
         if (!IsOwner)
         {
@@ -77,9 +80,7 @@ public class PlayerMovement : NetworkBehaviour
         Cursor.visible = false;
 
         playerTeam.OnValueChanged += OnTeamChanged;
-        OnTeamChanged(GameManager.Team.None, GameManager.Team.None);
-
-        currentCam = camPivot.GetComponent<Camera>();
+        OnTeamChanged(playerTeam.Value, playerTeam.Value);
 
         rotationY = transform.rotation.eulerAngles.y;
         currentSpeed = walkSpeed;
@@ -106,9 +107,11 @@ public class PlayerMovement : NetworkBehaviour
         currentCam = camPivot.GetComponent<Camera>();
     }
 
-    [Rpc(SendTo.Server)]
-    public void SetPlayerSpawnServerRpc(Vector3 pos)
+    // Server-authoritative: the server owns position, so this runs there directly
+    public void TeleportTo(Vector3 pos)
     {
+        if (!IsServer) { return; }
+
         if (myRigidbody != null)
         {
             myRigidbody.linearVelocity = Vector3.zero;
@@ -117,7 +120,7 @@ public class PlayerMovement : NetworkBehaviour
         }
         else
         {
-            myRigidbody.position = pos;
+            transform.position = pos;
         }
     }
 
@@ -220,6 +223,11 @@ public class PlayerMovement : NetworkBehaviour
 
     public override void OnNetworkDespawn()
     {
+        if (IsServer && gameManager != null)
+        {
+            gameManager.UnregisterPlayer(this);
+        }
+
         playerTeam.OnValueChanged -= OnTeamChanged;
     }
 }

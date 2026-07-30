@@ -72,5 +72,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
   ShowTopMostFoldoutHeaderGroup: 1
-  player: {fileID: 0}
-  spawnPoint: {x: 0, y: 0, z: 0}
+  mapSpawnTransform: {fileID: 0}
+  lobbySpawnTransform: {fileID: 0}
+  maxPlayerCount: 4
+  hunterValue: 2

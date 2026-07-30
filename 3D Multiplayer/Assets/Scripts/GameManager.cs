@@ -4,19 +4,12 @@ using UnityEngine;
 
 public class GameManager : NetworkBehaviour
 {
-    [SerializeField] Transform spawnTransform;
+    [SerializeField] Transform mapSpawnTransform;
+    [SerializeField] Transform lobbySpawnTransform;
     [SerializeField] int maxPlayerCount;
     [SerializeField] int hunterValue;
 
     List<PlayerMovement> playerList = new List<PlayerMovement>();
-
-    public override void OnNetworkSpawn()
-    {
-        if (IsServer)
-        {
-
-        }
-    }
 
     public enum Team
     {
@@ -25,25 +18,29 @@ public class GameManager : NetworkBehaviour
         Props,
     }
 
+    public void RegisterPlayer(PlayerMovement player)
+    {
+        if (!IsServer || player == null || playerList.Contains(player)) { return; }
+
+        playerList.Add(player);
+
+        // Only position the player that just joined, everyone else stays put
+        player.TeleportTo(lobbySpawnTransform.position);
+    }
+
+    public void UnregisterPlayer(PlayerMovement player)
+    {
+        if (!IsServer) { return; }
+
+        playerList.Remove(player);
+    }
+
     public void StartGame()
     {
         if (!IsServer) { return; }
 
-        SetPlayerList();
         AssignTeam();
-        SetPlayerPositions();
-    }
-
-    void SetPlayerList()
-    {
-        playerList = new List<PlayerMovement>();
-        foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
-        {
-            if (client.PlayerObject != null && client.PlayerObject.TryGetComponent(out PlayerMovement pm))
-            {
-                playerList.Add(pm);
-            }
-        }
+        SetPlayerPositions(mapSpawnTransform.position);
     }
 
     void AssignTeam()
@@ -51,7 +48,7 @@ public class GameManager : NetworkBehaviour
         // Randomise player list indexes
         for (int i = playerList.Count - 1; i > 0; i--)
         {
-            int randomIndex = Random.Range(0, i  + 1);
+            int randomIndex = Random.Range(0, i + 1);
 
             // Assign value to the random index in list
             (playerList[i], playerList[randomIndex]) = (playerList[randomIndex], playerList[i]);
@@ -65,11 +62,14 @@ public class GameManager : NetworkBehaviour
         }
     }
 
-    void SetPlayerPositions()
+    void SetPlayerPositions(Vector3 pos)
     {
         foreach (PlayerMovement player in playerList)
         {
-            player.SetPlayerSpawnServerRpc(spawnTransform.position);
+            if (player != null)
+            {
+                player.TeleportTo(pos);
+            }
         }
     }
 }
