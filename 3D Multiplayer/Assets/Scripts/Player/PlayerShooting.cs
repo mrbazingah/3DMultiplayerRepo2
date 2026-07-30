@@ -25,11 +25,11 @@ public class PlayerShooting : NetworkBehaviour
 
     Camera cam;
 
-    PlayerMovement myPlayerMovement;
+    PlayerMovement myMovement;
 
     public override void OnNetworkSpawn()
     {
-        myPlayerMovement = GetComponent<PlayerMovement>();
+        myMovement = GetComponent<PlayerMovement>();
 
         if (IsServer)
         {
@@ -39,7 +39,7 @@ public class PlayerShooting : NetworkBehaviour
         ammo.OnValueChanged += OnAmmoChanged;
         OnAmmoChanged(0, ammo.Value);
 
-        NetworkVariable<GameManager.Team> team = myPlayerMovement.GetPlayerTeam();
+        NetworkVariable<GameManager.Team> team = myMovement.GetPlayerTeam();
         team.OnValueChanged += OnTeamChanged;
         SetCanShoot(team.Value);
     }
@@ -47,7 +47,7 @@ public class PlayerShooting : NetworkBehaviour
     void OnTeamChanged(GameManager.Team previousTeam, GameManager.Team newTeam)
     {
         SetCanShoot(newTeam);
-        cam = myPlayerMovement.GetCurrentCam();
+        cam = myMovement.GetCurrentCam();
     }
 
     public void SetCanShoot(GameManager.Team team)
@@ -89,7 +89,7 @@ public class PlayerShooting : NetworkBehaviour
 
             if (targetHealth != null && targetMovement != null)
             {
-                if (targetMovement.GetPlayerTeam().Value == myPlayerMovement.GetPlayerTeam().Value) { return; }
+                if (targetMovement.GetPlayerTeam().Value == myMovement.GetPlayerTeam().Value) { return; }
 
                 targetHealth.TakeDamage(damage);
             }
@@ -139,6 +139,6 @@ public class PlayerShooting : NetworkBehaviour
     public override void OnNetworkDespawn()
     {
         ammo.OnValueChanged -= OnAmmoChanged;
-        myPlayerMovement.GetPlayerTeam().OnValueChanged -= OnTeamChanged;
+        myMovement.GetPlayerTeam().OnValueChanged -= OnTeamChanged;
     }
 }

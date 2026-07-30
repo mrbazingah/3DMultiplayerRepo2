@@ -4,8 +4,7 @@ using UnityEngine;
 public class PlayerHealth : NetworkBehaviour
 {
     [SerializeField] int maxHealth;
-    
-    NetworkVariable<int> health = new NetworkVariable<int>();
+    [SerializeField] NetworkVariable<int> health = new NetworkVariable<int>();
 
     public override void OnNetworkSpawn()
     {

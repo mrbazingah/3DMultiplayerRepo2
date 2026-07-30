@@ -83,8 +83,6 @@ public class PlayerMovement : NetworkBehaviour
 
         rotationY = transform.rotation.eulerAngles.y;
         currentSpeed = walkSpeed;
-
-        gameManager.AssignPlayer(transform);
     }
 
     public void SetPlayerTeam(GameManager.Team newTeam)
@@ -106,6 +104,21 @@ public class PlayerMovement : NetworkBehaviour
         thridPersonCam.enabled = !hunter;
         camPivot = hunter ? firstPersonCam.transform : camPivot;
         currentCam = camPivot.GetComponent<Camera>();
+    }
+
+    [Rpc(SendTo.Server)]
+    public void SetPlayerSpawnServerRpc(Vector3 pos)
+    {
+        if (myRigidbody != null)
+        {
+            myRigidbody.linearVelocity = Vector3.zero;
+            myRigidbody.angularVelocity = Vector3.zero;
+            myRigidbody.position = pos;
+        }
+        else
+        {
+            myRigidbody.position = pos;
+        }
     }
 
     void FixedUpdate()
