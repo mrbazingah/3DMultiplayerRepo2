@@ -711,6 +711,14 @@ PrefabInstance:
       propertyPath: GlobalObjectIdHash
       value: 1829411508
       objectReference: {fileID: 0}
+    - target: {fileID: 1477382102278075737, guid: b7ad3901fb0cf874090fe3d2cef9065f, type: 3}
+      propertyPath: hunterValue
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 1477382102278075737, guid: b7ad3901fb0cf874090fe3d2cef9065f, type: 3}
+      propertyPath: maxPlayerCount
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 2533637792143967358, guid: b7ad3901fb0cf874090fe3d2cef9065f, type: 3}
       propertyPath: m_Name
       value: GameManager

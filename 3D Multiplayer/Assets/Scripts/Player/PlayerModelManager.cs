@@ -31,11 +31,20 @@ public class PlayerModelManager : NetworkBehaviour
 
         currentProp.OnValueChanged += OnCurrentPropChanged;
 
+        NetworkVariable<GameManager.Team> team = myMovement.GetPlayerTeam();
+        team.OnValueChanged += OnTeamChanged;
+        SetCanSwap(team.Value);
+
         if (IsOwner)
         {
             // Make sure local player model has correct layer
             SetLayerRecursively(defaultVisuals, LayerMask.NameToLayer("Player Visuals"));
         }
+    }
+
+    void OnTeamChanged(GameManager.Team previousTeam, GameManager.Team newTeam)
+    {
+        SetCanSwap(newTeam);
     }
 
     public void SetCanSwap(GameManager.Team team)
@@ -122,7 +131,7 @@ public class PlayerModelManager : NetworkBehaviour
             currentPropModel = spawnedProp;
             SetLayerRecursively(currentPropModel, LayerMask.NameToLayer("Player Prop"));
 
-            Collider newCol = GetCurrentPropModelCollider();
+            Collider newCol = GetCurrentModelCollider();
             myMovement.SetPlayerCollider(newCol);
         }
     }
@@ -160,40 +169,49 @@ public class PlayerModelManager : NetworkBehaviour
     {
         if (!IsOwner || !canSwap) { return; }
 
+        Transform modelTransform = currentPropModel != null ? currentPropModel.transform : defaultVisuals.transform;
+        ToggleLockServerRpc(modelTransform.rotation);
+    }
+
+    [Rpc(SendTo.Server)]
+    void ToggleLockServerRpc(Quaternion currentRotation)
+    {
         lockRotation.Value = !lockRotation.Value;
 
-        savedRotation.Value = currentPropModel != null ? currentPropModel.transform.rotation : defaultVisuals.transform.rotation;
+        if (lockRotation.Value)
+        {
+            savedRotation.Value = currentRotation;
+        }
     }
 
     void LateUpdate()
     {
-        if (!IsOwner) { return; }
-
         LockRotation();
     }
 
     void LockRotation()
     {
-        savedRotation.Value = lockRotation.Value ? savedRotation.Value : myMovement.GetPlayerRotation();
+        Quaternion targetRotation = lockRotation.Value ? savedRotation.Value : myMovement.GetPlayerRotation();
 
         if (currentPropModel != null)
         {
-            currentPropModel.transform.rotation = savedRotation.Value;
+            currentPropModel.transform.rotation = targetRotation;
         }
         else
         {
-            defaultVisuals.transform.rotation = savedRotation.Value;
+            defaultVisuals.transform.rotation = targetRotation;
         }
     }
 
     public override void OnNetworkDespawn()
     {
         currentProp.OnValueChanged -= OnCurrentPropChanged;
+        myMovement.GetPlayerTeam().OnValueChanged -= OnTeamChanged;
     }
 
-    public Collider GetCurrentPropModelCollider()
+    public Collider GetCurrentModelCollider()
     {
-        Collider cpmCol = currentPropModel != null ? currentPropModel.GetComponent<Collider>() : myMovement.GetComponent<Collider>();
-        return cpmCol;
+        Collider cmCol = currentPropModel != null ? currentPropModel.GetComponent<Collider>() : myMovement.GetComponent<Collider>();
+        return cmCol;
     }
 }

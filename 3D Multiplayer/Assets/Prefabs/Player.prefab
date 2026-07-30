@@ -273,7 +273,7 @@ MonoBehaviour:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 1
+    m_InternalValue: 0
 --- !u!114 &3093765351669244058
 MonoBehaviour:
   m_ObjectHideFlags: 0

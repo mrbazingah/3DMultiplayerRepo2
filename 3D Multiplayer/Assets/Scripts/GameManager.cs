@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -6,6 +7,7 @@ public class GameManager : NetworkBehaviour
     [SerializeField] Transform player;
     [SerializeField] Vector3 spawnPoint;
     [SerializeField] int maxPlayerCount;
+    [SerializeField] int hunterValue;
 
     NetworkObject[] players;
 
@@ -13,10 +15,7 @@ public class GameManager : NetworkBehaviour
     {
         if (IsServer)
         {
-            NetworkManager.Singleton.OnClientConnectedCallback += OnPlayerConnect;
-            NetworkManager.Singleton.OnClientDisconnectCallback += OnPlayerDisconnect;
 
-            players = new NetworkObject[maxPlayerCount];
         }
 
         if (player != null)
@@ -63,29 +62,41 @@ public class GameManager : NetworkBehaviour
         Props,
     }
 
-    public void OnPlayerConnect(ulong clientId)
+    public void StartGame()
     {
-        NetworkClient client = NetworkManager.Singleton.ConnectedClients[clientId];
-        players[clientId] = client.PlayerObject;
+        if (!IsServer) { return; }
+
+        AssignTeam();
+
+        // Teleport players to map
     }
 
-    private void OnPlayerDisconnect(ulong clientId)
+    public void AssignTeam()
     {
-        players[clientId] = null;
-    }
+        if (!IsServer) { return; }
 
-    int GetPlayerCount()
-    {
-        int count = 0;
-
-        for (int i = 0; i < players.Length; i++)
+        List<PlayerMovement> playerList = new List<PlayerMovement>();
+        foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
         {
-            if (players[i] != null)
+            if (client.PlayerObject != null && client.PlayerObject.TryGetComponent(out PlayerMovement pm))
             {
-                count++;
+                playerList.Add(pm);
             }
         }
 
-        return count;
+        // Randomise player list indexes
+        for (int i = playerList.Count - 1; i > 0; i--)
+        {
+            int randomIndex = Random.Range(0, i  + 1);
+
+            // Assign value to the random index in list
+            (playerList[i], playerList[randomIndex]) = (playerList[randomIndex], playerList[i]);
+        }
+
+        int hunterCount = Mathf.Max(1, playerList.Count / hunterValue);
+        for (int i = 0; i < playerList.Count; i++)
+        {
+            playerList[i].SetPlayerTeam(i < hunterCount ? Team.Hunters : Team.Props);
+        }
     }
 }

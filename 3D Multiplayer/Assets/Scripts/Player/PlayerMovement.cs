@@ -56,6 +56,7 @@ public class PlayerMovement : NetworkBehaviour
             myRigidbody.isKinematic = true;
 
             thridPersonCam.gameObject.SetActive(false);
+            firstPersonCam.gameObject.SetActive(false);
 
             if (playerAudioListener != null)
             {
@@ -75,18 +76,8 @@ public class PlayerMovement : NetworkBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        if (playerTeam.Value == GameManager.Team.Hunters)
-        {
-            firstPersonCam.enabled = true;
-            thridPersonCam.enabled = false;
-
-            camPivot = firstPersonCam.transform;
-        }
-        else
-        {
-            firstPersonCam.enabled = false;
-            thridPersonCam.enabled = true;
-        }
+        playerTeam.OnValueChanged += OnTeamChanged;
+        OnTeamChanged(GameManager.Team.None, GameManager.Team.None);
 
         currentCam = camPivot.GetComponent<Camera>();
 
@@ -99,11 +90,22 @@ public class PlayerMovement : NetworkBehaviour
     public void SetPlayerTeam(GameManager.Team newTeam)
     {
         if (!IsServer) { return; }
-
         playerTeam.Value = newTeam;
+    }
 
-        myModelManager.SetCanSwap(newTeam);
-        myShooting.SetCanShoot(newTeam);
+    void OnTeamChanged(GameManager.Team previous, GameManager.Team current)
+    {
+        if (!IsOwner) { return; }
+        ApplyTeamVisuals(current);
+    }
+
+    void ApplyTeamVisuals(GameManager.Team team)
+    {
+        bool hunter = team == GameManager.Team.Hunters;
+        firstPersonCam.enabled = hunter;
+        thridPersonCam.enabled = !hunter;
+        camPivot = hunter ? firstPersonCam.transform : camPivot;
+        currentCam = camPivot.GetComponent<Camera>();
     }
 
     void FixedUpdate()
@@ -194,5 +196,17 @@ public class PlayerMovement : NetworkBehaviour
     public NetworkVariable<GameManager.Team> GetPlayerTeam()
     {
         return playerTeam;
+    }
+
+    public void OnStartGame(InputValue value)
+    {
+        if (!IsOwner || !IsServer) { return; }
+
+        gameManager.StartGame();
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        playerTeam.OnValueChanged -= OnTeamChanged;
     }
 }

@@ -31,8 +31,6 @@ public class PlayerShooting : NetworkBehaviour
     {
         myPlayerMovement = GetComponent<PlayerMovement>();
 
-        cam = myPlayerMovement.GetCurrentCam();
-
         if (IsServer)
         {
             ammo.Value = maxAmmo;
@@ -40,6 +38,16 @@ public class PlayerShooting : NetworkBehaviour
 
         ammo.OnValueChanged += OnAmmoChanged;
         OnAmmoChanged(0, ammo.Value);
+
+        NetworkVariable<GameManager.Team> team = myPlayerMovement.GetPlayerTeam();
+        team.OnValueChanged += OnTeamChanged;
+        SetCanShoot(team.Value);
+    }
+
+    void OnTeamChanged(GameManager.Team previousTeam, GameManager.Team newTeam)
+    {
+        SetCanShoot(newTeam);
+        cam = myPlayerMovement.GetCurrentCam();
     }
 
     public void SetCanShoot(GameManager.Team team)
@@ -83,7 +91,7 @@ public class PlayerShooting : NetworkBehaviour
             {
                 if (targetMovement.GetPlayerTeam().Value == myPlayerMovement.GetPlayerTeam().Value) { return; }
 
-                targetHealth.TakeDamage(damage); 
+                targetHealth.TakeDamage(damage);
             }
         }
     }
@@ -126,5 +134,11 @@ public class PlayerShooting : NetworkBehaviour
     void ReloadServerRpc()
     {
         ammo.Value = maxAmmo;
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        ammo.OnValueChanged -= OnAmmoChanged;
+        myPlayerMovement.GetPlayerTeam().OnValueChanged -= OnTeamChanged;
     }
 }
