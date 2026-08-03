@@ -37,7 +37,7 @@ public class GameManager : NetworkBehaviour
 
     public void StartGame()
     {
-        if (!IsServer) { return; }
+        if (!IsServer || playerList.Count < 2) { return; }
 
         AssignTeam();
         SetPlayerPositions(mapSpawnTransform.position);

@@ -48,7 +48,6 @@ public class PlayerMovement : NetworkBehaviour
         gameManager = FindFirstObjectByType<GameManager>();
         myCollider = GetComponent<Collider>();
 
-        // Runs on the server for every player object, owned or not
         if (IsServer && gameManager != null)
         {
             gameManager.RegisterPlayer(this);
@@ -107,7 +106,6 @@ public class PlayerMovement : NetworkBehaviour
         currentCam = camPivot.GetComponent<Camera>();
     }
 
-    // Server-authoritative: the server owns position, so this runs there directly
     public void TeleportTo(Vector3 pos)
     {
         if (!IsServer) { return; }
