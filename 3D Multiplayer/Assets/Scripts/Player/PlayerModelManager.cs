@@ -24,7 +24,6 @@ public class PlayerModelManager : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        // Gets components and scripts
         propRegistry = FindFirstObjectByType<PropRegistry>();
         myMovement = GetComponent<PlayerMovement>();
         myCollider = GetComponent<Collider>();
@@ -33,7 +32,7 @@ public class PlayerModelManager : NetworkBehaviour
         // Subscribes to network variable changes
         currentProp.OnValueChanged += OnCurrentPropChanged;
 
-        // Sets team based on the base script
+        // Follows the team from PlayerMovement so canSwap stays correct on every client, and applies the current value for players who spawn with a team already set
         NetworkVariable<GameManager.Team> team = myMovement.GetPlayerTeam();
         team.OnValueChanged += OnTeamChanged;
         SetCanSwap(team.Value);
@@ -76,7 +75,6 @@ public class PlayerModelManager : NetworkBehaviour
             }
         }
 
-        // Sets detectedProp to null if no prop is detected
         detectedProp = null;
     }
 
@@ -89,7 +87,7 @@ public class PlayerModelManager : NetworkBehaviour
         Debug.Log("Interacted with prop");
     }
 
-    // Server RPC to swap the player's model which trigger OnCurrentPropChanged() to update the model on all clients
+    // Server RPC to swap the player's model which triggers OnCurrentPropChanged() to update the model on all clients
     [Rpc(SendTo.Server)]
     void SwapModelServerRpc(Prop.PropType propType)
     {
@@ -107,7 +105,7 @@ public class PlayerModelManager : NetworkBehaviour
     {
         Debug.Log("Applied prop model");
 
-        // Initialize prop model for player
+        // Initializes prop model for player
         GameObject spawnedProp = null;
 
         if (currentProp.Value != Prop.PropType.None)
@@ -133,14 +131,13 @@ public class PlayerModelManager : NetworkBehaviour
 
         if (currentPropModel != null)
         {
-            // Destroys previous prop model
             currentPropModel.SetActive(false);
             Destroy(currentPropModel);
         }
 
         if (spawnedProp != null)
         {
-            // Apply new prop model, sets layer and assigns new collider
+            // Applies new prop model, sets layer and assigns new collider
             currentPropModel = spawnedProp;
             SetLayerRecursively(currentPropModel, LayerMask.NameToLayer("Player Prop"));
 
@@ -160,9 +157,9 @@ public class PlayerModelManager : NetworkBehaviour
         }
     }
 
+    // Uses the previous and current model's collider's lowest point to calculate the distance between them and moves the player to allign to the ground
     void AlignPlayerToGround(Collider previousCollider, Collider newCollider)
     {
-        // Uses the previous and current model's collider's lowest point to calculate the distance between them and moves the player to allign to the ground
         float previousLowPoint = previousCollider.bounds.min.y;
         float newLowPoint = newCollider.bounds.min.y;
 
@@ -184,10 +181,12 @@ public class PlayerModelManager : NetworkBehaviour
     {
         if (!IsOwner || !canSwap) { return; }
 
+        // Assigns prop's model or player's model before locking it
         Transform modelTransform = currentPropModel != null ? currentPropModel.transform : defaultVisuals.transform;
         ToggleLockServerRpc(modelTransform.rotation);
     }
 
+    // Server RPC to toggle lock rotation and save the current rotation if locking
     [Rpc(SendTo.Server)]
     void ToggleLockServerRpc(Quaternion currentRotation)
     {
@@ -199,13 +198,16 @@ public class PlayerModelManager : NetworkBehaviour
         }
     }
 
+    // Runs on every client and not just the owner, otherwise other players wouldn't see the locked rotation or the snap back
     void LateUpdate()
     {
         LockRotation();
     }
 
+    // Only reads the network variables and applies them to the local model, all writes go through ToggleLockServerRpc()
     void LockRotation()
     {
+        // Uses the rotation assigned when locked or player's current rotation
         Quaternion targetRotation = lockRotation.Value ? savedRotation.Value : myMovement.GetPlayerRotation();
 
         if (currentPropModel != null)
@@ -226,6 +228,7 @@ public class PlayerModelManager : NetworkBehaviour
 
     public Collider GetCurrentModelCollider()
     {
+        // Returns either prop model's collider or player model's collider
         Collider cmCol = currentPropModel != null ? currentPropModel.GetComponent<Collider>() : myMovement.GetComponent<Collider>();
         return cmCol;
     }
