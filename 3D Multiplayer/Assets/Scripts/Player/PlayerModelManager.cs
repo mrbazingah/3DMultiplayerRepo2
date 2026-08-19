@@ -24,24 +24,28 @@ public class PlayerModelManager : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        // Gets components and scripts
         propRegistry = FindFirstObjectByType<PropRegistry>();
         myMovement = GetComponent<PlayerMovement>();
         myCollider = GetComponent<Collider>();
         myRigidbody = GetComponent<Rigidbody>();
 
+        // Subscribes to network variable changes
         currentProp.OnValueChanged += OnCurrentPropChanged;
 
+        // Sets team based on the base script
         NetworkVariable<GameManager.Team> team = myMovement.GetPlayerTeam();
         team.OnValueChanged += OnTeamChanged;
         SetCanSwap(team.Value);
 
         if (IsOwner)
         {
-            // Make sure local player model has correct layer
+            // Makes sure local player model has correct layer
             SetLayerRecursively(defaultVisuals, LayerMask.NameToLayer("Player Visuals"));
         }
     }
 
+    // Updates canSwap when team changes
     void OnTeamChanged(GameManager.Team previousTeam, GameManager.Team newTeam)
     {
         SetCanSwap(newTeam);
@@ -60,6 +64,7 @@ public class PlayerModelManager : NetworkBehaviour
 
     void DetectItem()
     {
+        // Casts a ray from the camera to detect props in front of the player
         if (Physics.Raycast(cam.transform.position, cam.transform.forward, out RaycastHit hit, detectionRange, propLayer))
         {
             Prop prop = hit.collider.GetComponent<Prop>();
@@ -71,6 +76,7 @@ public class PlayerModelManager : NetworkBehaviour
             }
         }
 
+        // Sets detectedProp to null if no prop is detected
         detectedProp = null;
     }
 
@@ -83,12 +89,14 @@ public class PlayerModelManager : NetworkBehaviour
         Debug.Log("Interacted with prop");
     }
 
+    // Server RPC to swap the player's model which trigger OnCurrentPropChanged() to update the model on all clients
     [Rpc(SendTo.Server)]
     void SwapModelServerRpc(Prop.PropType propType)
     {
         currentProp.Value = propType;
     }
 
+    // Updates player model on each client when variable changes
     void OnCurrentPropChanged(Prop.PropType oldValue, Prop.PropType newValue)
     {
         ApplyPropModel();
@@ -99,10 +107,12 @@ public class PlayerModelManager : NetworkBehaviour
     {
         Debug.Log("Applied prop model");
 
+        // Initialize prop model for player
         GameObject spawnedProp = null;
 
         if (currentProp.Value != Prop.PropType.None)
         {
+            // Gets the prop from registry and spawns it as a child of the player
             GameObject propPrefab = propRegistry.GetPrefab(currentProp.Value);
             spawnedProp = Instantiate(propPrefab, transform);
 
@@ -115,19 +125,22 @@ public class PlayerModelManager : NetworkBehaviour
             myCollider.enabled = true;
         }
 
-        Collider spawnedCollider = spawnedProp != null ? spawnedProp.GetComponent<Collider>() : myCollider;
+        // If the player has a prop assigned and the prop model isn't null then use the model's collider, otherwise use the player's collider
+        Collider spawnedCollider = currentProp.Value != Prop.PropType.None && spawnedProp != null ? spawnedProp.GetComponent<Collider>() : myCollider;
         Collider previousCollider = currentPropModel != null ? currentPropModel.GetComponent<Collider>() : myCollider;
 
-        AlignPropToGround(spawnedCollider, previousCollider);
+        AlignPlayerToGround(previousCollider, spawnedCollider);
 
         if (currentPropModel != null)
         {
+            // Destroys previous prop model
             currentPropModel.SetActive(false);
             Destroy(currentPropModel);
         }
 
         if (spawnedProp != null)
         {
+            // Apply new prop model, sets layer and assigns new collider
             currentPropModel = spawnedProp;
             SetLayerRecursively(currentPropModel, LayerMask.NameToLayer("Player Prop"));
 
@@ -136,6 +149,7 @@ public class PlayerModelManager : NetworkBehaviour
         }
     }
 
+    // Sets layer on each child of an object
     void SetLayerRecursively(GameObject obj, int layer)
     {
         obj.layer = layer;
@@ -146,12 +160,13 @@ public class PlayerModelManager : NetworkBehaviour
         }
     }
 
-    void AlignPropToGround(Collider propCollider1, Collider propCollider2)
+    void AlignPlayerToGround(Collider previousCollider, Collider newCollider)
     {
-        float propLowPoint = propCollider1.bounds.min.y;
-        float otherLowPoint = propCollider2.bounds.min.y;
+        // Uses the previous and current model's collider's lowest point to calculate the distance between them and moves the player to allign to the ground
+        float previousLowPoint = previousCollider.bounds.min.y;
+        float newLowPoint = newCollider.bounds.min.y;
 
-        float distance = otherLowPoint - propLowPoint;
+        float distance = newLowPoint - previousLowPoint;
 
         myRigidbody.position += new Vector3(0, distance, 0);
     }
