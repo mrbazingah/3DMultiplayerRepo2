@@ -53,6 +53,7 @@ public class PlayerMovement : NetworkBehaviour
             gameManager.RegisterPlayer(this);
         }
 
+        // If isn't owner, disable camera, input, audiolistener, rigidbody physics and this
         if (!IsOwner)
         {
             myRigidbody.isKinematic = true;
