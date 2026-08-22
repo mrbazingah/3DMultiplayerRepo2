@@ -89,6 +89,7 @@ public class PlayerShooting : NetworkBehaviour
 
             if (targetHealth != null && targetMovement != null)
             {
+                // Stop damage if target is on the same team as the shooter
                 if (targetMovement.GetPlayerTeam().Value == myMovement.GetPlayerTeam().Value) { return; }
 
                 targetHealth.TakeDamage(damage);

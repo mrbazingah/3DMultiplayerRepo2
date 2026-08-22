@@ -48,6 +48,7 @@ public class PlayerMovement : NetworkBehaviour
         gameManager = FindFirstObjectByType<GameManager>();
         myCollider = GetComponent<Collider>();
 
+        // Registers before the owner check since the server runs this for every player object and not just the ones it owns
         if (IsServer && gameManager != null)
         {
             gameManager.RegisterPlayer(this);
@@ -80,7 +81,7 @@ public class PlayerMovement : NetworkBehaviour
         Cursor.visible = false;
 
         playerTeam.OnValueChanged += OnTeamChanged;
-        OnTeamChanged(playerTeam.Value, playerTeam.Value);
+        OnTeamChanged(playerTeam.Value, playerTeam.Value); // Applies the current value since OnValueChanged only fires on a change
 
         rotationY = transform.rotation.eulerAngles.y;
         currentSpeed = walkSpeed;
@@ -88,6 +89,7 @@ public class PlayerMovement : NetworkBehaviour
 
     public void SetPlayerTeam(GameManager.Team newTeam)
     {
+        // Only the server can write the team, the change replicates to the clients through OnTeamChanged()
         if (!IsServer) { return; }
         playerTeam.Value = newTeam;
     }
@@ -100,19 +102,23 @@ public class PlayerMovement : NetworkBehaviour
 
     void ApplyTeamVisuals(GameManager.Team team)
     {
-        bool hunter = team == GameManager.Team.Hunters;
-        firstPersonCam.enabled = hunter;
-        thridPersonCam.enabled = !hunter;
-        camPivot = hunter ? firstPersonCam.transform : camPivot;
+        bool isHunter = team == GameManager.Team.Hunters;
+        firstPersonCam.enabled = isHunter;
+        thridPersonCam.enabled = !isHunter;
+
+        // Keeps the existing pivot for props, otherwise the third person camera would pivot around itself instead of the player
+        camPivot = isHunter ? firstPersonCam.transform : camPivot;
         currentCam = camPivot.GetComponent<Camera>();
     }
 
     public void TeleportTo(Vector3 pos)
     {
+        // Server owns the position so the move happens here
         if (!IsServer) { return; }
 
         if (myRigidbody != null)
         {
+            // Clears velocity so the player doesn't keep moving after being teleported
             myRigidbody.linearVelocity = Vector3.zero;
             myRigidbody.angularVelocity = Vector3.zero;
             myRigidbody.position = pos;
@@ -148,6 +154,7 @@ public class PlayerMovement : NetworkBehaviour
 
     void Movement()
     {
+        // Uses the player's own forward and right so movement follows where they're facing
         Vector3 forward = transform.forward;
         Vector3 right = transform.right;
 
@@ -156,6 +163,8 @@ public class PlayerMovement : NetworkBehaviour
         //myAnimator.SetBool("isWalking", moveDirection.magnitude > 0);
 
         Vector3 targetVelocity = moveDirection * currentSpeed;
+
+        // Keeps the current y velocity so gravity and jumping aren't overwritten
         myRigidbody.linearVelocity = new Vector3(targetVelocity.x, myRigidbody.linearVelocity.y, targetVelocity.z);
     }
 
@@ -170,14 +179,16 @@ public class PlayerMovement : NetworkBehaviour
     {
         if (myCollider == null) return false;
 
+        // Casts a ray down from the bottom of the current collider to check for ground
         Vector3 colOrigin = myCollider.bounds.center;
-        colOrigin.y = myCollider.bounds.min.y + 0.1f; // Make sure ray sits above ground
+        colOrigin.y = myCollider.bounds.min.y + 0.1f; // Make sure ray sits above ground, otherwise it will go past the ground and return false
 
         return Physics.Raycast(colOrigin, Vector3.down, rayDistance, groundLayer);
     }
 
     public void SetPlayerCollider(Collider newCol)
     {
+        // Called by PlayerModelManager so the ground check uses the prop model's collider after a swap
         myCollider = newCol;
     }
 
@@ -190,11 +201,13 @@ public class PlayerMovement : NetworkBehaviour
 
     void LateUpdate()
     {
+        // Pivot handles looking up and down and gets clamped, the body handles looking left and right in FixedUpdate()
         rotationX -= lookInput.y * lookSpeed;
         rotationX = Mathf.Clamp(rotationX, -lookXLimit, lookXLimit);
         camPivot.localRotation = Quaternion.Euler(rotationX, 0, 0);
         rotationY += (lookInput.x * lookSpeed);
 
+        // Resets input so the camera stops moving when there's no new input this frame
         lookInput = Vector2.zero;
     }
 
