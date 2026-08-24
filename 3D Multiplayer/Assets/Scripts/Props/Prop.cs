@@ -11,5 +11,8 @@ public class Prop : NetworkBehaviour
         Lantern,
         Campfire,
         SodaCan,
+        Books,
+        Homeplant_01,
+        Homeplant_02,
     }
 }

@@ -260,7 +260,7 @@ MonoBehaviour:
   jumpForce: 4
   groundLayer:
     serializedVersion: 2
-    m_Bits: 512
+    m_Bits: 768
   rayDistance: 0.2
   lookSpeed: 0.5
   lookXLimit: 90
