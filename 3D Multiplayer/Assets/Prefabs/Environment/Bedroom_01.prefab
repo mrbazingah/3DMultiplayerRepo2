@@ -598,11 +598,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 8614359775912114661, guid: 97c01e086a5d05048bc29c23927a73d0, type: 3}
       propertyPath: m_LocalScale.x
-      value: 2.2
+      value: 2.200638
       objectReference: {fileID: 0}
     - target: {fileID: 8614359775912114661, guid: 97c01e086a5d05048bc29c23927a73d0, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.16000056
+      value: -0.1809
       objectReference: {fileID: 0}
     - target: {fileID: 8614359775912114661, guid: 97c01e086a5d05048bc29c23927a73d0, type: 3}
       propertyPath: m_LocalPosition.y
@@ -724,6 +724,18 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6007858434179122681}
     m_Modifications:
+    - target: {fileID: -552334099999271706, guid: 7a61af0c447087345aee8730e8016b66, type: 3}
+      propertyPath: m_InScenePlaced
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -552334099999271706, guid: 7a61af0c447087345aee8730e8016b66, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 2057973825
+      objectReference: {fileID: 0}
+    - target: {fileID: -552334099999271706, guid: 7a61af0c447087345aee8730e8016b66, type: 3}
+      propertyPath: SceneMigrationSynchronization
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8409689739821252871, guid: 7a61af0c447087345aee8730e8016b66, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.88977814
@@ -766,7 +778,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9223065202646014909, guid: 7a61af0c447087345aee8730e8016b66, type: 3}
       propertyPath: m_Name
-      value: Prop_Console_05
+      value: Prop_Console_01
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -858,7 +870,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -3129830911633925093, guid: 47cb813f728c7ad429fead5d8107ce2b, type: 3}
       propertyPath: GlobalObjectIdHash
-      value: 2914576990
+      value: 1933735606
       objectReference: {fileID: 0}
     - target: {fileID: -3129830911633925093, guid: 47cb813f728c7ad429fead5d8107ce2b, type: 3}
       propertyPath: SceneMigrationSynchronization
@@ -996,10 +1008,6 @@ PrefabInstance:
       propertyPath: GlobalObjectIdHash
       value: 3663331137
       objectReference: {fileID: 0}
-    - target: {fileID: 1016774478668026566, guid: 49d434d412061c34b9c20366cb1bd289, type: 3}
-      propertyPath: SceneMigrationSynchronization
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2759482036613954056, guid: 49d434d412061c34b9c20366cb1bd289, type: 3}
       propertyPath: m_Name
       value: Prop_Homeplant_02
@@ -1136,10 +1144,6 @@ PrefabInstance:
       propertyPath: GlobalObjectIdHash
       value: 2520307137
       objectReference: {fileID: 0}
-    - target: {fileID: 1016774478668026566, guid: 49d434d412061c34b9c20366cb1bd289, type: 3}
-      propertyPath: SceneMigrationSynchronization
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 2759482036613954056, guid: 49d434d412061c34b9c20366cb1bd289, type: 3}
       propertyPath: m_Name
       value: Prop_Homeplant_02 (1)
@@ -1206,10 +1210,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Prop_Shelve_02
       objectReference: {fileID: 0}
-    - target: {fileID: 1616480087954205447, guid: a4cb1053db319414699a1dff5dfd9ef7, type: 3}
-      propertyPath: m_Layer
-      value: 9
-      objectReference: {fileID: 0}
     - target: {fileID: 2100142799666082237, guid: a4cb1053db319414699a1dff5dfd9ef7, type: 3}
       propertyPath: m_LocalPosition.x
       value: -0.18599987
@@ -1250,13 +1250,9 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7558988241416958301, guid: a4cb1053db319414699a1dff5dfd9ef7, type: 3}
-      propertyPath: m_Layer
-      value: 9
-      objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 1922911433244120660, guid: a4cb1053db319414699a1dff5dfd9ef7, type: 3}
-    m_RemovedGameObjects: []
+    m_RemovedComponents: []
+    m_RemovedGameObjects:
+    - {fileID: 7558988241416958301, guid: a4cb1053db319414699a1dff5dfd9ef7, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a4cb1053db319414699a1dff5dfd9ef7, type: 3}
@@ -1273,10 +1269,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8532819148981938476}
     m_Modifications:
-    - target: {fileID: 8614359775912114661, guid: 97c01e086a5d05048bc29c23927a73d0, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 3
-      objectReference: {fileID: 0}
     - target: {fileID: 8614359775912114661, guid: 97c01e086a5d05048bc29c23927a73d0, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0.9900031
@@ -1383,10 +1375,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Prop_Desk_01
       objectReference: {fileID: 0}
-    - target: {fileID: 6602491243328212773, guid: b86b4db3613b6c34db8159dee086b52b, type: 3}
-      propertyPath: m_Layer
-      value: 9
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1405,6 +1393,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 8072095878504943954}
     m_Modifications:
+    - target: {fileID: -5892039378326000207, guid: 5c8c7ca7dceb0a741828d99422038859, type: 3}
+      propertyPath: m_InScenePlaced
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -5892039378326000207, guid: 5c8c7ca7dceb0a741828d99422038859, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 4152798405
+      objectReference: {fileID: 0}
     - target: {fileID: 1666865025992152658, guid: 5c8c7ca7dceb0a741828d99422038859, type: 3}
       propertyPath: m_LocalPosition.x
       value: -1.902
@@ -1447,7 +1443,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2047506449276898536, guid: 5c8c7ca7dceb0a741828d99422038859, type: 3}
       propertyPath: m_Name
-      value: Prop_TeddyBear_02
+      value: Prop_Plushie_02
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1541,33 +1537,9 @@ PrefabInstance:
       propertyPath: GlobalObjectIdHash
       value: 1722301719
       objectReference: {fileID: 0}
-    - target: {fileID: 1925025101601780163, guid: e93de57625adc394ba0361fbd47ebbcc, type: 3}
-      propertyPath: SceneMigrationSynchronization
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1925025101601780163, guid: e93de57625adc394ba0361fbd47ebbcc, type: 3}
-      propertyPath: InScenePlacedSourceGlobalObjectIdHash
-      value: 1330400201
-      objectReference: {fileID: 0}
     - target: {fileID: 4832914731295941290, guid: e93de57625adc394ba0361fbd47ebbcc, type: 3}
       propertyPath: m_Name
       value: Soda
-      objectReference: {fileID: 0}
-    - target: {fileID: 4832914731295941290, guid: e93de57625adc394ba0361fbd47ebbcc, type: 3}
-      propertyPath: m_Layer
-      value: 8
-      objectReference: {fileID: 0}
-    - target: {fileID: 5213522378215520272, guid: e93de57625adc394ba0361fbd47ebbcc, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 0.25
-      objectReference: {fileID: 0}
-    - target: {fileID: 5213522378215520272, guid: e93de57625adc394ba0361fbd47ebbcc, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 0.3
-      objectReference: {fileID: 0}
-    - target: {fileID: 5213522378215520272, guid: e93de57625adc394ba0361fbd47ebbcc, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 0.25
       objectReference: {fileID: 0}
     - target: {fileID: 5213522378215520272, guid: e93de57625adc394ba0361fbd47ebbcc, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1815,10 +1787,6 @@ PrefabInstance:
       propertyPath: GlobalObjectIdHash
       value: 295733281
       objectReference: {fileID: 0}
-    - target: {fileID: 6577338504795086542, guid: bc96a176a96d2ad4f9a0c97e053d764b, type: 3}
-      propertyPath: SceneMigrationSynchronization
-      value: 0
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1944,8 +1912,8 @@ PrefabInstance:
       value: Prop_Bed_08 (1)
       objectReference: {fileID: 0}
     - target: {fileID: 8945866844649682846, guid: 2e4492d0e2d806e4c8e1a010ea19ce6f, type: 3}
-      propertyPath: m_Layer
-      value: 9
+      propertyPath: m_StaticEditorFlags
+      value: 2147483647
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1971,7 +1939,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -3129830911633925093, guid: 47cb813f728c7ad429fead5d8107ce2b, type: 3}
       propertyPath: GlobalObjectIdHash
-      value: 3060974239
+      value: 1252014619
       objectReference: {fileID: 0}
     - target: {fileID: 3140887873742126018, guid: 47cb813f728c7ad429fead5d8107ce2b, type: 3}
       propertyPath: m_Name
@@ -2099,7 +2067,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1368020379167398387, guid: 64f793e040e30624b89a6a08e31953a0, type: 3}
       propertyPath: m_Name
-      value: Prop_OldTV
+      value: Prop_Tv_01
       objectReference: {fileID: 0}
     - target: {fileID: 1853231134783357769, guid: 64f793e040e30624b89a6a08e31953a0, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2139,6 +2107,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1853231134783357769, guid: 64f793e040e30624b89a6a08e31953a0, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4702927587726256396, guid: 64f793e040e30624b89a6a08e31953a0, type: 3}
+      propertyPath: m_InScenePlaced
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4702927587726256396, guid: 64f793e040e30624b89a6a08e31953a0, type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 1312604769
+      objectReference: {fileID: 0}
+    - target: {fileID: 4702927587726256396, guid: 64f793e040e30624b89a6a08e31953a0, type: 3}
+      propertyPath: SceneMigrationSynchronization
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
@@ -2284,8 +2264,12 @@ PrefabInstance:
     m_TransformParent: {fileID: 6007858434179122681}
     m_Modifications:
     - target: {fileID: -3129830911633925093, guid: 47cb813f728c7ad429fead5d8107ce2b, type: 3}
+      propertyPath: m_InScenePlaced
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -3129830911633925093, guid: 47cb813f728c7ad429fead5d8107ce2b, type: 3}
       propertyPath: GlobalObjectIdHash
-      value: 595433740
+      value: 1327219703
       objectReference: {fileID: 0}
     - target: {fileID: 3140887873742126018, guid: 47cb813f728c7ad429fead5d8107ce2b, type: 3}
       propertyPath: m_Name

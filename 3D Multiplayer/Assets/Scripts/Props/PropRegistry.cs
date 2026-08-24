@@ -8,17 +8,18 @@ public class PropRegistry : MonoBehaviour
     {
         public Prop.PropType type;
         public GameObject prefab;
+        public int maxHealth;
     }
 
     [SerializeField] List<PropEntry> entries = new List<PropEntry>();
 
-    Dictionary<Prop.PropType, GameObject> propDict = new Dictionary<Prop.PropType, GameObject>();
+    Dictionary<Prop.PropType, PropEntry> propDict = new Dictionary<Prop.PropType, PropEntry>();
 
     void Awake()
     {
         foreach (PropEntry entry in entries)
         {
-            if (!propDict.TryAdd(entry.type, entry.prefab))
+            if (!propDict.TryAdd(entry.type, entry))
             {
                 Debug.LogError("Duplicate prop ID in registry: " + entry.type, this);
             }
@@ -27,6 +28,23 @@ public class PropRegistry : MonoBehaviour
 
     public GameObject GetPrefab(Prop.PropType type)
     {
-        return propDict[type];
+        if (propDict.TryGetValue(type, out PropEntry entry))
+        {
+            return entry.prefab;
+        }
+
+        Debug.LogError("Prop type not found in registry: " + type, this);
+        return null;
     }
+
+    public int GetHealth(Prop.PropType type)
+    {
+        if (propDict.TryGetValue(type, out PropEntry entry))
+        {
+            return entry.maxHealth;
+        }
+
+        Debug.LogError("Prop type not found in registry: " + type, this);
+        return 0;
+    }       
 }

@@ -47,13 +47,28 @@ MonoBehaviour:
   entries:
   - type: 1
     prefab: {fileID: 3039042285323353783, guid: 2c0b11e6e9eec01438e7b0c2fa94b421, type: 3}
+    maxHealth: 30
   - type: 2
     prefab: {fileID: 7754295705678482600, guid: ab5ae4aa61ca39146a6f1d46549aadb1, type: 3}
+    maxHealth: 50
   - type: 3
     prefab: {fileID: 4832914731295941290, guid: e93de57625adc394ba0361fbd47ebbcc, type: 3}
+    maxHealth: 5
   - type: 4
     prefab: {fileID: 3140887873742126018, guid: 47cb813f728c7ad429fead5d8107ce2b, type: 3}
+    maxHealth: 10
   - type: 5
     prefab: {fileID: 532524636771926215, guid: bc96a176a96d2ad4f9a0c97e053d764b, type: 3}
+    maxHealth: 15
   - type: 6
     prefab: {fileID: 2759482036613954056, guid: 49d434d412061c34b9c20366cb1bd289, type: 3}
+    maxHealth: 15
+  - type: 7
+    prefab: {fileID: 2047506449276898536, guid: 5c8c7ca7dceb0a741828d99422038859, type: 3}
+    maxHealth: 10
+  - type: 8
+    prefab: {fileID: 9223065202646014909, guid: 7a61af0c447087345aee8730e8016b66, type: 3}
+    maxHealth: 20
+  - type: 9
+    prefab: {fileID: 1368020379167398387, guid: 64f793e040e30624b89a6a08e31953a0, type: 3}
+    maxHealth: 35

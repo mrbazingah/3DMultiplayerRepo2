@@ -4,12 +4,26 @@ using UnityEngine;
 
 public class GameManager : NetworkBehaviour
 {
+    public static GameManager Instance { get; private set; }
+
     [SerializeField] Transform mapSpawnTransform;
     [SerializeField] Transform lobbySpawnTransform;
     [SerializeField] int maxPlayerCount;
     [SerializeField] int hunterValue;
+    [SerializeField] List<PlayerMovement> playerList = new List<PlayerMovement>();
 
-    List<PlayerMovement> playerList = new List<PlayerMovement>();
+    void Awake()
+    {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            gameObject.SetActive(false);
+            Destroy(gameObject);
+        }
+    }
 
     public enum Team
     {
@@ -20,12 +34,14 @@ public class GameManager : NetworkBehaviour
 
     public void RegisterPlayer(PlayerMovement player)
     {
-        if (!IsServer || player == null || playerList.Contains(player)) { return; }
+        Debug.Log(IsServer + player.gameObject.name + IsSpawned);
+
+        if (player == null || playerList.Contains(player)) { return; }
 
         playerList.Add(player);
 
         // Only position the player that just joined, everyone else stays put
-        player.TeleportTo(lobbySpawnTransform.position);
+        //player.TeleportTo(lobbySpawnTransform.position);
     }
 
     public void UnregisterPlayer(PlayerMovement player)

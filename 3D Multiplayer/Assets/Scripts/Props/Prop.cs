@@ -14,5 +14,8 @@ public class Prop : NetworkBehaviour
         Books,
         Homeplant_01,
         Homeplant_02,
+        Plushie,
+        Console_01,
+        Tv_01,
     }
 }

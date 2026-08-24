@@ -12,13 +12,14 @@ public class PlayerModelManager : NetworkBehaviour
     [SerializeField] GameObject currentPropModel;
     [SerializeField] bool canSwap;
 
-    NetworkVariable<Prop.PropType> currentProp = new NetworkVariable<Prop.PropType>();
+    NetworkVariable<Prop.PropType> currentPropType = new NetworkVariable<Prop.PropType>();
 
     NetworkVariable<bool> lockRotation = new NetworkVariable<bool>();
     NetworkVariable<Quaternion> savedRotation = new NetworkVariable<Quaternion>();
 
     PropRegistry propRegistry;
     PlayerMovement myMovement;
+    PlayerHealth myHealth;
     Collider myCollider;
     Rigidbody myRigidbody;
 
@@ -26,11 +27,12 @@ public class PlayerModelManager : NetworkBehaviour
     {
         propRegistry = FindFirstObjectByType<PropRegistry>();
         myMovement = GetComponent<PlayerMovement>();
+        myHealth = GetComponent<PlayerHealth>();
         myCollider = GetComponent<Collider>();
         myRigidbody = GetComponent<Rigidbody>();
 
         // Subscribes to network variable changes
-        currentProp.OnValueChanged += OnCurrentPropChanged;
+        currentPropType.OnValueChanged += OnCurrentPropTypeChanged;
 
         // Follows the team from PlayerMovement so canSwap stays correct on every client, and applies the current value for players who spawn with a team already set
         NetworkVariable<GameManager.Team> team = myMovement.GetPlayerTeam();
@@ -91,11 +93,18 @@ public class PlayerModelManager : NetworkBehaviour
     [Rpc(SendTo.Server)]
     void SwapModelServerRpc(Prop.PropType propType)
     {
-        currentProp.Value = propType;
+        // Stops model swap if the prop prefab isn't found in the registry
+        if (propRegistry.GetPrefab(propType) == null && propType != Prop.PropType.None) { return; }
+
+        currentPropType.Value = propType;
+
+        // Falls back to the player's own max health when discarding, since None has no registry entry
+        int newMaxHealth = propType != Prop.PropType.None ? propRegistry.GetHealth(propType) : myHealth.GetDefaultMaxHealth();
+        myHealth.ApplyMaxHealth(newMaxHealth);
     }
 
     // Updates player model on each client when variable changes
-    void OnCurrentPropChanged(Prop.PropType oldValue, Prop.PropType newValue)
+    void OnCurrentPropTypeChanged(Prop.PropType oldValue, Prop.PropType newValue)
     {
         ApplyPropModel();
         Debug.Log("Prop changed from " + oldValue + " to " + newValue);
@@ -108,10 +117,10 @@ public class PlayerModelManager : NetworkBehaviour
         // Initializes prop model for player
         GameObject spawnedProp = null;
 
-        if (currentProp.Value != Prop.PropType.None)
+        if (currentPropType.Value != Prop.PropType.None)
         {
             // Gets the prop from registry and spawns it as a child of the player
-            GameObject propPrefab = propRegistry.GetPrefab(currentProp.Value);
+            GameObject propPrefab = propRegistry.GetPrefab(currentPropType.Value);
             spawnedProp = Instantiate(propPrefab, transform);
 
             defaultVisuals.SetActive(false);
@@ -124,7 +133,7 @@ public class PlayerModelManager : NetworkBehaviour
         }
 
         // If the player has a prop assigned and the prop model isn't null then use the model's collider, otherwise use the player's collider
-        Collider spawnedCollider = currentProp.Value != Prop.PropType.None && spawnedProp != null ? spawnedProp.GetComponent<Collider>() : myCollider;
+        Collider spawnedCollider = currentPropType.Value != Prop.PropType.None ? spawnedProp.GetComponent<Collider>() : myCollider;
         Collider previousCollider = currentPropModel != null ? currentPropModel.GetComponent<Collider>() : myCollider;
 
         AlignPlayerToGround(previousCollider, spawnedCollider);
@@ -222,7 +231,7 @@ public class PlayerModelManager : NetworkBehaviour
 
     public override void OnNetworkDespawn()
     {
-        currentProp.OnValueChanged -= OnCurrentPropChanged;
+        currentPropType.OnValueChanged -= OnCurrentPropTypeChanged;
         myMovement.GetPlayerTeam().OnValueChanged -= OnTeamChanged;
     }
 

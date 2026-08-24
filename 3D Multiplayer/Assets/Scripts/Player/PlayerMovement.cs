@@ -7,11 +7,16 @@ public class PlayerMovement : NetworkBehaviour
     [Header("Walking")]
     [SerializeField] float walkSpeed;
     [SerializeField] float runSpeed;
+    [SerializeField] float crouchSpeed;
+    [SerializeField] float crouchHeight;
+    [SerializeField] float defaultHeight;
 
     [Header("Jumping")]
     [SerializeField] float jumpForce;
     [SerializeField] LayerMask groundLayer;
     [SerializeField] float rayDistance;
+    [SerializeField] float gravity;
+    [SerializeField] float coyoteTime;
 
     [Header("Camera")]
     [SerializeField] float lookSpeed;
@@ -25,10 +30,12 @@ public class PlayerMovement : NetworkBehaviour
     [SerializeField] NetworkVariable<GameManager.Team> playerTeam;
 
     bool isRunning;
+    bool isCrouching;
 
     float currentSpeed;
     float rotationX;
     float rotationY;
+    float coyoteCounter;
 
     Vector3 moveDirection;
     Vector2 movementInput;
@@ -38,20 +45,22 @@ public class PlayerMovement : NetworkBehaviour
 
     Rigidbody myRigidbody;
     Animator myAnimator;
-    GameManager gameManager;
     Collider myCollider;
 
     public override void OnNetworkSpawn()
     {
         myRigidbody = GetComponent<Rigidbody>();
         myAnimator = GetComponentInChildren<Animator>();
-        gameManager = FindFirstObjectByType<GameManager>();
         myCollider = GetComponent<Collider>();
 
         // Registers before the owner check since the server runs this for every player object and not just the ones it owns
-        if (IsServer && gameManager != null)
+        if (IsServer && GameManager.Instance != null)
         {
-            gameManager.RegisterPlayer(this);
+            GameManager.Instance.RegisterPlayer(this);
+        }
+        else
+        {
+            Debug.LogWarning("GameManager not found, player not registered");
         }
 
         // If isn't owner, disable camera, input, audiolistener, rigidbody physics and this
@@ -132,6 +141,8 @@ public class PlayerMovement : NetworkBehaviour
     void FixedUpdate()
     {
         Movement();
+        ApplyGravity();
+        CoyoteTime();
 
         myRigidbody.MoveRotation(Quaternion.Euler(0, rotationY, 0));
     }
@@ -146,7 +157,7 @@ public class PlayerMovement : NetworkBehaviour
     // Pass through input
     public void OnRun(InputValue value)
     {
-        if (!IsOwner) { return; }
+        if (!IsOwner || isCrouching) { return; }
 
         isRunning = value.isPressed;
         currentSpeed = isRunning ? runSpeed : walkSpeed;
@@ -168,11 +179,64 @@ public class PlayerMovement : NetworkBehaviour
         myRigidbody.linearVelocity = new Vector3(targetVelocity.x, myRigidbody.linearVelocity.y, targetVelocity.z);
     }
 
+    // Pass through input
+    public void OnCrouch(InputValue value)
+    {
+        if (!IsOwner) { return; }
+
+        isCrouching = value.isPressed;
+        isRunning = false;
+
+        currentSpeed = isCrouching ? crouchSpeed : walkSpeed;
+
+        if (playerTeam.Value == GameManager.Team.Hunters)
+        {
+            CapsuleCollider collider = GetComponent<CapsuleCollider>();
+            collider.height = isCrouching ? crouchHeight : defaultHeight;
+        }
+    }
+
+    void ApplyGravity()
+    {
+        float velocity = myRigidbody.linearVelocity.y;
+        if (IsGrounded() && (velocity < 0 || velocity > 0))
+        {
+            velocity = 0f;
+        }
+        else
+        {
+            velocity = gravity * Time.fixedDeltaTime;
+        }
+
+        myRigidbody.linearVelocity -= new Vector3(0, velocity, 0);
+    }
+
+    void CoyoteTime()
+    {
+        if (IsGrounded())
+        {
+            // Refills the timer while grounded so the player always has the full window when they walk off
+            coyoteCounter = coyoteTime;
+        }
+        else
+        {
+            coyoteCounter -= Time.fixedDeltaTime;
+        }
+    }
+
     public void OnJump(InputValue value)
     {
-        if (!IsOwner || !IsGrounded()) { return; }
+        if (!IsOwner) { return; }
 
+        // Allows the jump if the player left the ground within the coyote window
+        if (!value.isPressed || coyoteCounter <= 0) { return; }
+
+        // Clears any downward velocity first so a jump taken late in the coyote window reaches full height
+        myRigidbody.linearVelocity = new Vector3(myRigidbody.linearVelocity.x, 0, myRigidbody.linearVelocity.z);
         myRigidbody.AddForce(new Vector3(0, jumpForce, 0), ForceMode.Impulse);
+
+        // Stops the same window being used for a second jump before landing
+        coyoteCounter = 0;
     }
 
     bool IsGrounded()
@@ -226,18 +290,21 @@ public class PlayerMovement : NetworkBehaviour
         return playerTeam;
     }
 
+    // Change to in game menu once lobbies are implemented  
     public void OnStartGame(InputValue value)
     {
         if (!IsOwner || !IsServer) { return; }
 
-        gameManager.StartGame();
+        Debug.Log("Game Started");
+
+        GameManager.Instance.StartGame();
     }
 
     public override void OnNetworkDespawn()
     {
-        if (IsServer && gameManager != null)
+        if (IsServer && GameManager.Instance != null)
         {
-            gameManager.UnregisterPlayer(this);
+            GameManager.Instance.UnregisterPlayer(this);
         }
 
         playerTeam.OnValueChanged -= OnTeamChanged;
