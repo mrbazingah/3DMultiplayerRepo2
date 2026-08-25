@@ -289,7 +289,7 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.18900545
+  m_Radius: 0.24837221
   m_Height: 1.05
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
@@ -364,7 +364,7 @@ MonoBehaviour:
   crouchSpeed: 2
   crouchHeight: 0.6
   defaultHeight: 1.05
-  jumpForce: 10
+  jumpForce: 8
   groundLayer:
     serializedVersion: 2
     m_Bits: 768
@@ -377,12 +377,17 @@ MonoBehaviour:
   thridPersonCam: {fileID: 5984510200694350359}
   camPivot: {fileID: 4325585484412161707}
   playerAudioListener: {fileID: 6499311155699352634}
+  camCollisionLayers:
+    serializedVersion: 2
+    m_Bits: 1847
+  camCollisionRadius: 0.1
+  camReturnSpeed: 7
   playerInput: {fileID: 1046686182426769148}
   playerTeam:
     UpdateTraits:
       MinSecondsBetweenUpdates: 0
       MaxSecondsBetweenUpdates: 0
-    m_InternalValue: 1
+    m_InternalValue: 2
 --- !u!114 &3093765351669244058
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -601,7 +606,7 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.3
+  near clip plane: 0.05
   far clip plane: 1000
   field of view: 60
   orthographic: 0

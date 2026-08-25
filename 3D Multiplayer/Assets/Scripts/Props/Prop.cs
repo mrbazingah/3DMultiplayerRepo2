@@ -17,5 +17,6 @@ public class Prop : NetworkBehaviour
         Plushie,
         Console_01,
         Tv_01,
+        Chair_01,
     }
 }

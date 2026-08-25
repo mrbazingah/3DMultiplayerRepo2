@@ -25,6 +25,9 @@ public class PlayerMovement : NetworkBehaviour
     [SerializeField] Camera thridPersonCam;
     [SerializeField] Transform camPivot;
     [SerializeField] AudioListener playerAudioListener;
+    [SerializeField] LayerMask camCollisionLayers;
+    [SerializeField] float camCollisionRadius;
+    [SerializeField] float camReturnSpeed;
     [Space]
     [SerializeField] PlayerInput playerInput;
     [SerializeField] NetworkVariable<GameManager.Team> playerTeam;
@@ -36,8 +39,11 @@ public class PlayerMovement : NetworkBehaviour
     float rotationX;
     float rotationY;
     float coyoteCounter;
+    float defaultCamDistance;
+    float currentCamDistance;
 
     Vector3 moveDirection;
+    Vector3 camOffsetDirection;
     Vector2 movementInput;
     Vector2 lookInput;
 
@@ -88,6 +94,11 @@ public class PlayerMovement : NetworkBehaviour
 
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        // Stores where the camera sits in the prefab so collision can pull it in and put it back on the same line
+        camOffsetDirection = thridPersonCam.transform.localPosition.normalized;
+        defaultCamDistance = thridPersonCam.transform.localPosition.magnitude;
+        currentCamDistance = defaultCamDistance;
 
         playerTeam.OnValueChanged += OnTeamChanged;
         OnTeamChanged(playerTeam.Value, playerTeam.Value); // Applies the current value since OnValueChanged only fires on a change
@@ -273,6 +284,39 @@ public class PlayerMovement : NetworkBehaviour
 
         // Resets input so the camera stops moving when there's no new input this frame
         lookInput = Vector2.zero;
+
+        // Runs after the pivot has rotated so the cast points where the camera actually ends up this frame
+        CameraCollision();
+    }
+
+    void CameraCollision()
+    {
+        // Hunters are in first person so the camera sits on the pivot and has nothing to pull in
+        if (playerTeam.Value == GameManager.Team.Hunters) { return; }
+
+        Vector3 origin = camPivot.position;
+        Vector3 direction = camPivot.TransformDirection(camOffsetDirection);
+
+        float targetDistance = defaultCamDistance;
+
+        // Sphere cast instead of a ray so the camera doesn't slip through corners and thin gaps that a thin ray would miss
+        if (Physics.SphereCast(origin, camCollisionRadius, direction, out RaycastHit hit, defaultCamDistance, camCollisionLayers, QueryTriggerInteraction.Ignore))
+        {
+            targetDistance = hit.distance;
+        }
+
+        if (targetDistance < currentCamDistance)
+        {
+            // Pulls in instantly, otherwise the camera would spend a few frames inside the wall
+            currentCamDistance = targetDistance;
+        }
+        else
+        {
+            // Pushes back out slowly so the camera doesn't snap when the obstacle clears
+            currentCamDistance = Mathf.Lerp(currentCamDistance, targetDistance, camReturnSpeed * Time.deltaTime);
+        }
+
+        thridPersonCam.transform.localPosition = camOffsetDirection * currentCamDistance;
     }
 
     public Quaternion GetPlayerRotation()

@@ -68,7 +68,10 @@ MonoBehaviour:
     maxHealth: 10
   - type: 8
     prefab: {fileID: 9223065202646014909, guid: 7a61af0c447087345aee8730e8016b66, type: 3}
-    maxHealth: 20
+    maxHealth: 25
   - type: 9
     prefab: {fileID: 1368020379167398387, guid: 64f793e040e30624b89a6a08e31953a0, type: 3}
-    maxHealth: 35
+    maxHealth: 45
+  - type: 10
+    prefab: {fileID: 2520500702545374437, guid: 1684937b26a2f70469a26d8569d58c7e, type: 3}
+    maxHealth: 50
