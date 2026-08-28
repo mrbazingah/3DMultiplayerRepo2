@@ -294,8 +294,8 @@ public class PlayerMovement : NetworkBehaviour
         // Hunters are in first person so the camera sits on the pivot and has nothing to pull in
         if (playerTeam.Value == GameManager.Team.Hunters) { return; }
 
-        Vector3 origin = camPivot.position;
         Vector3 direction = camPivot.TransformDirection(camOffsetDirection);
+        Vector3 origin = camPivot.position - direction * camCollisionRadius;
 
         float targetDistance = defaultCamDistance;
 
@@ -352,5 +352,33 @@ public class PlayerMovement : NetworkBehaviour
         }
 
         playerTeam.OnValueChanged -= OnTeamChanged;
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        // Only meaningful once OnNetworkSpawn has captured the offset, before that the direction is a zero vector
+        if (camPivot == null || camOffsetDirection == Vector3.zero) { return; }
+
+        Vector3 direction = camPivot.TransformDirection(camOffsetDirection);
+
+        // Matches the shifted origin used in CameraCollision() so the gizmo shows where the cast actually starts
+        Vector3 origin = camPivot.position - direction * camCollisionRadius;
+        float castDistance = defaultCamDistance + camCollisionRadius;
+
+        // Green for the sphere at the start of the cast
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(origin, camCollisionRadius);
+
+        // Line along the full cast length 
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawLine(origin, origin + direction * castDistance);
+
+        // Red for where the sphere would end up if nothing was hit
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(origin + direction * castDistance, camCollisionRadius);
+
+        // Blue for where the camera actually sits this frame
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(camPivot.position + direction * currentCamDistance, camCollisionRadius);
     }
 }
