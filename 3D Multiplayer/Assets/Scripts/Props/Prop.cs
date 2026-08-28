@@ -18,5 +18,6 @@ public class Prop : NetworkBehaviour
         Console_01,
         Tv_01,
         Chair_01,
+        Chest,
     }
 }

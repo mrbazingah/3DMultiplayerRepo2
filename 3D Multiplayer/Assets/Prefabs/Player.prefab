@@ -379,7 +379,7 @@ MonoBehaviour:
   playerAudioListener: {fileID: 6499311155699352634}
   camCollisionLayers:
     serializedVersion: 2
-    m_Bits: 1847
+    m_Bits: 1591
   camCollisionRadius: 0.1
   camReturnSpeed: 7
   playerInput: {fileID: 1046686182426769148}

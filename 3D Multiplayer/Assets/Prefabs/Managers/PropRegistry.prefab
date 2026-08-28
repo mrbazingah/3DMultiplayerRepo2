@@ -75,3 +75,6 @@ MonoBehaviour:
   - type: 10
     prefab: {fileID: 2520500702545374437, guid: 1684937b26a2f70469a26d8569d58c7e, type: 3}
     maxHealth: 50
+  - type: 11
+    prefab: {fileID: 6282063412259024970, guid: 053fef6cc17b11f4485e27a5d11ffafe, type: 3}
+    maxHealth: 35
