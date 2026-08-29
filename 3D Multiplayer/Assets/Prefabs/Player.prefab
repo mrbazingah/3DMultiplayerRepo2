@@ -410,7 +410,7 @@ MonoBehaviour:
   detectedProp: {fileID: 0}
   currentPropModel: {fileID: 0}
   canSwap: 0
-  propSpawnOffset: {x: 0, y: -0.25, z: 0}
+  propSpawnOffset: {x: 0, y: -0.15, z: 0}
 --- !u!114 &7832588847785007772
 MonoBehaviour:
   m_ObjectHideFlags: 0

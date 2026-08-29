@@ -27,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 1624077450920504450}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.557, z: 0}
+  m_LocalPosition: {x: 0, y: 0.511, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -56,7 +56,7 @@ Light:
     m_Strength: 1
     m_Bias: 0.05
     m_NormalBias: 0.4
-    m_NearPlane: 0.2
+    m_NearPlane: 0.12
     m_CullingMatrixOverride:
       e00: 1
       e01: 0
@@ -138,9 +138,9 @@ GameObject:
   - component: {fileID: 5005687699611990061}
   - component: {fileID: 8275397181488576392}
   - component: {fileID: 6142042023461765954}
-  - component: {fileID: 4827154067163144120}
   - component: {fileID: 3347161046072548142}
   - component: {fileID: 4243309240309116435}
+  - component: {fileID: 8654302695192002807}
   m_Layer: 8
   m_Name: Prop_HomeLamp_02
   m_TagString: Untagged
@@ -221,27 +221,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &4827154067163144120
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5637405974644548247}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 0.1, y: 0.53694797, z: 0.1}
-  m_Center: {x: 0.0033087374, y: 0.26847398, z: 0}
 --- !u!114 &3347161046072548142
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -254,13 +233,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 2239227696
+  GlobalObjectIdHash: 3010915342
   InScenePlacedSourceGlobalObjectIdHash: 3283532446
   DeferredDespawnTick: 0
   Ownership: 1
   AlwaysReplicateAsRoot: 0
   SynchronizeTransform: 1
-  m_InScenePlaced: 1
+  m_InScenePlaced: 0
   ActiveSceneSynchronization: 0
   SceneMigrationSynchronization: 0
   SpawnWithObservers: 1
@@ -282,3 +261,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Prop
   ShowTopMostFoldoutHeaderGroup: 1
   <propType>k__BackingField: 12
+--- !u!136 &8654302695192002807
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5637405974644548247}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.12
+  m_Height: 0.5792895
+  m_Direction: 1
+  m_Center: {x: 0, y: 0.28030026, z: 0}
