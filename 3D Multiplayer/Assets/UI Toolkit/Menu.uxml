@@ -1,0 +1,6 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="project://database/Assets/UI%20Toolkit/MenuBase.uss?fileID=7433441132597879392&amp;guid=e8091c5889965d7438733258518c67db&amp;type=3#MenuBase"/>
+    <ui:VisualElement name="Panel" class="hidden panel-background">
+        <ui:VisualElement name="Window" class="window"/>
+    </ui:VisualElement>
+</ui:UXML>
