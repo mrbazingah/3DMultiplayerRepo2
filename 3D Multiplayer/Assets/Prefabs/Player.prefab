@@ -332,7 +332,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.Netcode.Runtime::Unity.Netcode.NetworkObject
-  GlobalObjectIdHash: 613867139
+  GlobalObjectIdHash: 3124374088
   InScenePlacedSourceGlobalObjectIdHash: 613867139
   DeferredDespawnTick: 0
   Ownership: 1
@@ -381,10 +381,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1591
   camCollisionRadius: 0.1
-  camReturnSpeed: 7
-  zoomSpeed: 20
-  minZoom: -2
-  maxZoom: -0.5
+  camReturnSpeed: 13
+  zoomSpeed: 30
+  minZoom: 0.5
+  maxZoom: 10
   playerInput: {fileID: 1046686182426769148}
   playerTeam:
     UpdateTraits:
@@ -413,7 +413,7 @@ MonoBehaviour:
   detectedProp: {fileID: 0}
   currentPropModel: {fileID: 0}
   canSwap: 0
-  propSpawnOffset: {x: 0, y: -0.15, z: 0}
+  propSpawnOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &7832588847785007772
 MonoBehaviour:
   m_ObjectHideFlags: 0

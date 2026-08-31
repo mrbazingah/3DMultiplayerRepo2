@@ -43,7 +43,7 @@ public class PlayerMovement : NetworkBehaviour
     float rotationX;
     float rotationY;
     float coyoteCounter;
-    float defaultCamDistance;
+    float desiredCamDistance;
     float currentCamDistance;
 
     Vector3 moveDirection;
@@ -100,10 +100,10 @@ public class PlayerMovement : NetworkBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        // Stores where the camera sits in the prefab so collision can pull it in and put it back on the same line
+        // Stores where the camera sits in the prefab so zoom and collision can move it along the same line
         camOffsetDirection = thirdPersonCam.transform.localPosition.normalized;
-        defaultCamDistance = thirdPersonCam.transform.localPosition.magnitude;
-        currentCamDistance = defaultCamDistance;
+        desiredCamDistance = thirdPersonCam.transform.localPosition.magnitude;
+        currentCamDistance = desiredCamDistance;
 
         playerTeam.OnValueChanged += OnTeamChanged;
         OnTeamChanged(playerTeam.Value, playerTeam.Value); // Applies the current value since OnValueChanged only fires on a change
@@ -281,8 +281,9 @@ public class PlayerMovement : NetworkBehaviour
 
     public void OnZoom(InputValue value)
     {
+        // Only props can zoom since hunters are in first person
         if (!IsOwner || playerTeam.Value != GameManager.Team.Props) { return; }
-        
+
         zoomInput = value.Get<Vector2>();
     }
 
@@ -300,14 +301,17 @@ public class PlayerMovement : NetworkBehaviour
         CameraZoom();
 
         // Runs after the pivot has rotated so the cast points where the camera actually ends up this frame
-        //CameraCollision();
+        CameraCollision();
     }
 
     void CameraZoom()
     {
-        // Move 3rd cam based on zoom input, clamped to min and max zoom values
-        float zoomAmount = thirdPersonCam.transform.localPosition.z + zoomInput.y * zoomSpeed * Time.deltaTime;
-        thirdPersonCam.transform.localPosition = new Vector3(0, 0, Mathf.Clamp(zoomAmount, minZoom, maxZoom));
+        // Only sets how far back the camera wants to be, CameraCollision() does the actual moving
+        desiredCamDistance -= zoomInput.y * zoomSpeed * Time.deltaTime;
+        desiredCamDistance = Mathf.Clamp(desiredCamDistance, minZoom, maxZoom);
+
+        // Scroll input is a delta so it has to be cleared, otherwise the camera keeps zooming after one scroll
+        zoomInput = Vector2.zero;
     }
 
     void CameraCollision()
@@ -316,15 +320,21 @@ public class PlayerMovement : NetworkBehaviour
         if (playerTeam.Value == GameManager.Team.Hunters) { return; }
 
         Vector3 direction = camPivot.TransformDirection(camOffsetDirection);
+
+        // Starts the cast in front of the pivot so the sphere isn't already overlapping a wall the player is stood against
         Vector3 origin = camPivot.position - direction * camCollisionRadius;
 
-        float targetDistance = defaultCamDistance;
+        float targetDistance = desiredCamDistance;
 
         // Sphere cast instead of a ray so the camera doesn't slip through corners and thin gaps that a thin ray would miss
-        if (Physics.SphereCast(origin, camCollisionRadius, direction, out RaycastHit hit, defaultCamDistance, camCollisionLayers, QueryTriggerInteraction.Ignore))
+        if (Physics.SphereCast(origin, camCollisionRadius, direction, out RaycastHit hit, desiredCamDistance + camCollisionRadius, camCollisionLayers, QueryTriggerInteraction.Ignore))
         {
-            targetDistance = hit.distance;
+            // Subtracts the offset so the distance is measured from the pivot again and not from the shifted origin
+            targetDistance = hit.distance - camCollisionRadius;
         }
+
+        // Never lets the camera collapse onto the pivot even when the cast is blocked right at the start
+        targetDistance = Mathf.Max(minZoom, targetDistance);
 
         if (targetDistance < currentCamDistance)
         {
@@ -380,33 +390,5 @@ public class PlayerMovement : NetworkBehaviour
         }
 
         playerTeam.OnValueChanged -= OnTeamChanged;
-    }
-
-    void OnDrawGizmosSelected()
-    {
-        // Only meaningful once OnNetworkSpawn has captured the offset, before that the direction is a zero vector
-        if (camPivot == null || camOffsetDirection == Vector3.zero) { return; }
-
-        Vector3 direction = camPivot.TransformDirection(camOffsetDirection);
-
-        // Matches the shifted origin used in CameraCollision() so the gizmo shows where the cast actually starts
-        Vector3 origin = camPivot.position - direction * camCollisionRadius;
-        float castDistance = defaultCamDistance + camCollisionRadius;
-
-        // Green for the sphere at the start of the cast
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(origin, camCollisionRadius);
-
-        // Line along the full cast length 
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawLine(origin, origin + direction * castDistance);
-
-        // Red for where the sphere would end up if nothing was hit
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(origin + direction * castDistance, camCollisionRadius);
-
-        // Blue for where the camera actually sits this frame
-        Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(camPivot.position + direction * currentCamDistance, camCollisionRadius);
     }
 }

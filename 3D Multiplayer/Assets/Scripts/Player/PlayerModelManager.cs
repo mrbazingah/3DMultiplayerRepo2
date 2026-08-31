@@ -174,7 +174,9 @@ public class PlayerModelManager : NetworkBehaviour
         float previousLowPoint = previousCollider.bounds.min.y;
         float newLowPoint = newCollider.bounds.min.y;
 
-        float distance = newLowPoint - previousLowPoint;
+        Debug.Log($"New: {newLowPoint} Previous: {previousLowPoint}");
+
+        float distance =  previousLowPoint - newLowPoint;
 
         myRigidbody.position += new Vector3(0, distance, 0);
     }
