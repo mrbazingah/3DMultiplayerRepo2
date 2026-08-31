@@ -25,6 +25,15 @@
                     "initialStateCheck": true
                 },
                 {
+                    "name": "Zoom",
+                    "type": "Value",
+                    "id": "5b71ce8e-5136-4d7f-a175-04143aa85a8e",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
                     "name": "Run",
                     "type": "PassThrough",
                     "id": "641cd816-40e6-41b4-8c3d-04687c349290",
@@ -487,6 +496,17 @@
                     "processors": "",
                     "groups": ";Keyboard&Mouse",
                     "action": "Menu",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "1f9516d3-f2ce-4526-9910-cded328f80ab",
+                    "path": "<Mouse>/scroll",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Keyboard&Mouse",
+                    "action": "Zoom",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

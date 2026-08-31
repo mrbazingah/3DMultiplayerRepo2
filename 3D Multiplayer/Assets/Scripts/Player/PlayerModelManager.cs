@@ -7,7 +7,7 @@ public class PlayerModelManager : NetworkBehaviour
     [SerializeField] GameObject defaultVisuals;
     [SerializeField] float detectionRange;
     [SerializeField] LayerMask propLayer;
-    [SerializeField] Camera cam;
+    [SerializeField] Transform camPivot;
     [SerializeField] Prop detectedProp;
     [SerializeField] GameObject currentPropModel;
     [SerializeField] bool canSwap;
@@ -66,8 +66,8 @@ public class PlayerModelManager : NetworkBehaviour
 
     void DetectItem()
     {
-        // Casts a ray from the camera to detect props in front of the player
-        if (Physics.Raycast(cam.transform.position, cam.transform.forward, out RaycastHit hit, detectionRange, propLayer))
+        // Casts a ray from the camPivot to detect props in front of the player
+        if (Physics.Raycast(camPivot.position, camPivot.forward, out RaycastHit hit, detectionRange, propLayer))
         {
             Prop prop = hit.collider.GetComponent<Prop>();
             if (prop != null)

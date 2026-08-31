@@ -22,13 +22,17 @@ public class PlayerMovement : NetworkBehaviour
     [SerializeField] float lookSpeed;
     [SerializeField] float lookXLimit;
     [SerializeField] Camera firstPersonCam;
-    [SerializeField] Camera thridPersonCam;
+    [SerializeField] Camera thirdPersonCam;
     [SerializeField] Transform camPivot;
     [SerializeField] AudioListener playerAudioListener;
     [SerializeField] LayerMask camCollisionLayers;
     [SerializeField] float camCollisionRadius;
     [SerializeField] float camReturnSpeed;
     [Space]
+    [SerializeField] float zoomSpeed;
+    [SerializeField] float minZoom;
+    [SerializeField] float maxZoom;
+    [Header("Other")]
     [SerializeField] PlayerInput playerInput;
     [SerializeField] NetworkVariable<GameManager.Team> playerTeam;
 
@@ -46,6 +50,7 @@ public class PlayerMovement : NetworkBehaviour
     Vector3 camOffsetDirection;
     Vector2 movementInput;
     Vector2 lookInput;
+    Vector2 zoomInput;
 
     Camera currentCam;
 
@@ -74,7 +79,7 @@ public class PlayerMovement : NetworkBehaviour
         {
             myRigidbody.isKinematic = true;
 
-            thridPersonCam.gameObject.SetActive(false);
+            thirdPersonCam.gameObject.SetActive(false);
             firstPersonCam.gameObject.SetActive(false);
 
             if (playerAudioListener != null)
@@ -96,8 +101,8 @@ public class PlayerMovement : NetworkBehaviour
         Cursor.visible = false;
 
         // Stores where the camera sits in the prefab so collision can pull it in and put it back on the same line
-        camOffsetDirection = thridPersonCam.transform.localPosition.normalized;
-        defaultCamDistance = thridPersonCam.transform.localPosition.magnitude;
+        camOffsetDirection = thirdPersonCam.transform.localPosition.normalized;
+        defaultCamDistance = thirdPersonCam.transform.localPosition.magnitude;
         currentCamDistance = defaultCamDistance;
 
         playerTeam.OnValueChanged += OnTeamChanged;
@@ -124,7 +129,7 @@ public class PlayerMovement : NetworkBehaviour
     {
         bool isHunter = team == GameManager.Team.Hunters;
         firstPersonCam.enabled = isHunter;
-        thridPersonCam.enabled = !isHunter;
+        thirdPersonCam.enabled = !isHunter;
 
         // Keeps the existing pivot for props, otherwise the third person camera would pivot around itself instead of the player
         camPivot = isHunter ? firstPersonCam.transform : camPivot;
@@ -274,6 +279,13 @@ public class PlayerMovement : NetworkBehaviour
         lookInput = value.Get<Vector2>();
     }
 
+    public void OnZoom(InputValue value)
+    {
+        if (!IsOwner || playerTeam.Value != GameManager.Team.Props) { return; }
+        
+        zoomInput = value.Get<Vector2>();
+    }
+
     void LateUpdate()
     {
         // Pivot handles looking up and down and gets clamped, the body handles looking left and right in FixedUpdate()
@@ -285,8 +297,17 @@ public class PlayerMovement : NetworkBehaviour
         // Resets input so the camera stops moving when there's no new input this frame
         lookInput = Vector2.zero;
 
+        CameraZoom();
+
         // Runs after the pivot has rotated so the cast points where the camera actually ends up this frame
-        CameraCollision();
+        //CameraCollision();
+    }
+
+    void CameraZoom()
+    {
+        // Move 3rd cam based on zoom input, clamped to min and max zoom values
+        float zoomAmount = thirdPersonCam.transform.localPosition.z + zoomInput.y * zoomSpeed * Time.deltaTime;
+        thirdPersonCam.transform.localPosition = new Vector3(0, 0, Mathf.Clamp(zoomAmount, minZoom, maxZoom));
     }
 
     void CameraCollision()
@@ -316,7 +337,7 @@ public class PlayerMovement : NetworkBehaviour
             currentCamDistance = Mathf.Lerp(currentCamDistance, targetDistance, camReturnSpeed * Time.deltaTime);
         }
 
-        thridPersonCam.transform.localPosition = camOffsetDirection * currentCamDistance;
+        thirdPersonCam.transform.localPosition = camOffsetDirection * currentCamDistance;
     }
 
     public Quaternion GetPlayerRotation()
@@ -348,7 +369,6 @@ public class PlayerMovement : NetworkBehaviour
     {
         if (!IsOwner) { return; }
 
-        Debug.Log("Menu Button pressed");
         UIManager.Instance.OnMenuButton();
     }
 

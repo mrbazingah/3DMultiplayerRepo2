@@ -359,22 +359,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   ShowTopMostFoldoutHeaderGroup: 1
-  walkSpeed: 5
-  runSpeed: 7
-  crouchSpeed: 2
+  walkSpeed: 4
+  runSpeed: 6.5
+  crouchSpeed: 1.5
   crouchHeight: 0.6
   defaultHeight: 1.05
   jumpForce: 8
   groundLayer:
     serializedVersion: 2
     m_Bits: 768
-  rayDistance: 0.2
+  rayDistance: 0.12
   gravity: 30
   coyoteTime: 0.2
   lookSpeed: 0.5
   lookXLimit: 90
   firstPersonCam: {fileID: 6483407682183602331}
-  thridPersonCam: {fileID: 5984510200694350359}
+  thirdPersonCam: {fileID: 5984510200694350359}
   camPivot: {fileID: 4325585484412161707}
   playerAudioListener: {fileID: 6499311155699352634}
   camCollisionLayers:
@@ -382,6 +382,9 @@ MonoBehaviour:
     m_Bits: 1591
   camCollisionRadius: 0.1
   camReturnSpeed: 7
+  zoomSpeed: 20
+  minZoom: -2
+  maxZoom: -0.5
   playerInput: {fileID: 1046686182426769148}
   playerTeam:
     UpdateTraits:
@@ -406,7 +409,7 @@ MonoBehaviour:
   propLayer:
     serializedVersion: 2
     m_Bits: 256
-  cam: {fileID: 5984510200694350359}
+  camPivot: {fileID: 4325585484412161707}
   detectedProp: {fileID: 0}
   currentPropModel: {fileID: 0}
   canSwap: 0
@@ -952,7 +955,7 @@ Transform:
   m_GameObject: {fileID: 7867486949121764332}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -1.479}
+  m_LocalPosition: {x: 0, y: 0, z: -1.4}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
