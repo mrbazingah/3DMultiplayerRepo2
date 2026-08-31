@@ -76,3 +76,4 @@ MonoBehaviour:
   lobbySpawnTransform: {fileID: 0}
   maxPlayerCount: 4
   hunterValue: 2
+  playerList: []
