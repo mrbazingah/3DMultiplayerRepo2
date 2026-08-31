@@ -11,7 +11,6 @@ public class PlayerModelManager : NetworkBehaviour
     [SerializeField] Prop detectedProp;
     [SerializeField] GameObject currentPropModel;
     [SerializeField] bool canSwap;
-    [SerializeField] Vector3 propSpawnOffset;
 
     NetworkVariable<Prop.PropType> currentPropType = new NetworkVariable<Prop.PropType>();
 
@@ -123,7 +122,9 @@ public class PlayerModelManager : NetworkBehaviour
             // Gets the prop from registry and spawns it as a child of the player
             GameObject propPrefab = propRegistry.GetPrefab(currentPropType.Value);
             spawnedProp = Instantiate(propPrefab, transform);
-            spawnedProp.transform.localPosition += propSpawnOffset;
+
+            float yOffset = propRegistry.GetYOffset(currentPropType.Value);
+            spawnedProp.transform.localPosition += new Vector3(0, yOffset, 0);
 
             defaultVisuals.SetActive(false);
             myCollider.enabled = false;

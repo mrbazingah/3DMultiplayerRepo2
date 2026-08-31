@@ -1,3 +1,4 @@
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -38,6 +39,7 @@ public class PlayerMovement : NetworkBehaviour
 
     bool isRunning;
     bool isCrouching;
+    bool isJumping;
 
     float currentSpeed;
     float rotationX;
@@ -212,6 +214,33 @@ public class PlayerMovement : NetworkBehaviour
         }
     }
 
+    public void OnJump(InputValue value)
+    {
+        if (!IsOwner) { return; }
+
+        // Allows the jump if the player left the ground within the coyote window
+        if (!value.isPressed || coyoteCounter <= 0 || isJumping) { return; }
+
+        // Clears any downward velocity first so a jump taken late in the coyote window reaches full height
+        myRigidbody.linearVelocity = new Vector3(myRigidbody.linearVelocity.x, 0, myRigidbody.linearVelocity.z);
+        myRigidbody.AddForce(new Vector3(0, jumpForce, 0), ForceMode.Impulse);
+
+        // Stops the same window being used for a second jump before landing
+        coyoteCounter = 0;
+
+        StartCoroutine(JumpDelay());
+    }
+
+    // Prevent double jumps
+    IEnumerator JumpDelay()
+    {
+        isJumping = true;
+
+        yield return new WaitForSeconds(0.2f);
+
+        isJumping = false;
+    }
+
     void ApplyGravity()
     {
         float velocity = myRigidbody.linearVelocity.y;
@@ -238,21 +267,6 @@ public class PlayerMovement : NetworkBehaviour
         {
             coyoteCounter -= Time.fixedDeltaTime;
         }
-    }
-
-    public void OnJump(InputValue value)
-    {
-        if (!IsOwner) { return; }
-
-        // Allows the jump if the player left the ground within the coyote window
-        if (!value.isPressed || coyoteCounter <= 0) { return; }
-
-        // Clears any downward velocity first so a jump taken late in the coyote window reaches full height
-        myRigidbody.linearVelocity = new Vector3(myRigidbody.linearVelocity.x, 0, myRigidbody.linearVelocity.z);
-        myRigidbody.AddForce(new Vector3(0, jumpForce, 0), ForceMode.Impulse);
-
-        // Stops the same window being used for a second jump before landing
-        coyoteCounter = 0;
     }
 
     bool IsGrounded()

@@ -37,7 +37,6 @@ public class UIManager : MonoBehaviour
     public void OpenMenu()
     {
         root.RemoveFromClassList("hidden");
-        Debug.Log("Menu Button pressed");
     }
 
     public void CloseMenu()

@@ -9,6 +9,7 @@ public class PropRegistry : MonoBehaviour
         public Prop.PropType type;
         public GameObject prefab;
         public int maxHealth;
+        public float yOffset;
     }
 
     [SerializeField] List<PropEntry> entries = new List<PropEntry>();
@@ -46,5 +47,16 @@ public class PropRegistry : MonoBehaviour
 
         Debug.LogError("Prop type not found in registry: " + type, this);
         return 0;
-    }       
+    }
+
+    public float GetYOffset(Prop.PropType type)
+    {
+        if (propDict.TryGetValue(type, out PropEntry entry))
+        {
+            return entry.yOffset;
+        }
+
+        Debug.LogError("Prop type not found in registry: " + type, this);
+        return 0;
+    }
 }
